@@ -18,19 +18,7 @@ canvas{
 background:#111827;
 display:block;
 margin:10px auto;
-border:3px solid #00e6ff;
-border-radius:12px;
-}
-
-button{
-padding:10px 15px;
-margin:5px;
-border:none;
-border-radius:8px;
-background:#00e6ff;
-color:black;
-font-weight:bold;
-cursor:pointer;
+border:2px solid #00e6ff;
 }
 </style>
 </head>
@@ -51,93 +39,62 @@ let canvas=document.getElementById("game");
 let ctx=canvas.getContext("2d");
 
 // PLAYER
-let player={
-x:130,
-y:380,
-w:40,
-h:40
-};
+let player={x:130,y:380};
 
 // ENEMY
-let enemy={
-x:100,
-y:0,
-w:40,
-h:40,
-speed:3
-};
+let enemy={x:100,y:0};
 
-let score=0;
-let gameOver=false;
+// START GAME FLAG
+let running=true;
 
-// CONTROL (keyboard)
+// CONTROLS
 document.addEventListener("keydown",e=>{
 if(e.key=="ArrowLeft") player.x-=15;
 if(e.key=="ArrowRight") player.x+=15;
 });
 
-// TOUCH CONTROL
-document.addEventListener("touchmove",e=>{
-player.x=e.touches[0].clientX-50;
-});
+// LOOP (IMPORTANT)
+function loop(){
 
-// COLLISION
-function hit(a,b){
-return a.x < b.x+b.w &&
-a.x+a.w > b.x &&
-a.y < b.y+b.h &&
-a.y+a.h > b.y;
-}
-
-// GAME LOOP
-function update(){
+if(!running) return;
 
 ctx.clearRect(0,0,300,450);
 
 // PLAYER
 ctx.fillStyle="blue";
-ctx.fillRect(player.x,player.y,player.w,player.h);
+ctx.fillRect(player.x,player.y,40,40);
 
-// ENEMY MOVE
-enemy.y+=enemy.speed;
-
-// ENEMY DRAW
+// ENEMY
+enemy.y+=4;
 ctx.fillStyle="red";
-ctx.fillRect(enemy.x,enemy.y,enemy.w,enemy.h);
+ctx.fillRect(enemy.x,enemy.y,40,40);
 
 // RESET ENEMY
 if(enemy.y>450){
 enemy.y=0;
 enemy.x=Math.random()*260;
-score++;
-enemy.speed+=0.2;
 }
 
-// SCORE
-ctx.fillStyle="white";
-ctx.font="16px Arial";
-ctx.fillText("Score: "+score,10,20);
-
-// COLLISION CHECK
-if(hit(player,enemy)){
-gameOver=true;
+// COLLISION
+if(
+player.x < enemy.x+40 &&
+player.x+40 > enemy.x &&
+player.y < enemy.y+40 &&
+player.y+40 > enemy.y
+){
+running=false;
 ctx.fillStyle="red";
-ctx.font="30px Arial";
-ctx.fillText("GAME OVER",60,220);
+ctx.font="20px Arial";
+ctx.fillText("GAME OVER",90,220);
 return;
 }
 
-requestAnimationFrame(update);
+requestAnimationFrame(loop);
 }
 
 // RESTART
 function restart(){
-player.x=130;
-enemy.y=0;
-enemy.speed=3;
-score=0;
-gameOver=false;
-update();
+location.reload();
 }
 
 // BACK
@@ -145,7 +102,8 @@ function back(){
 window.location.href="index.html";
 }
 
-update();
+// START GAME (VERY IMPORTANT)
+loop();
 
 </script>
 
