@@ -1,273 +1,189 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Game Hub Ultra</title><link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-   <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#00e6ff">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Hub Pro Max</title>
+
 <style>
-.card{
-transition:0.3s ease;
-}
-
-.card:active{
-transform:scale(0.95);
-}
 body{
-    background: radial-gradient(circle at top, #0f172a, #111827, #000);
+    margin:0;
+    font-family:Arial;
+    background:#0f172a;
     color:white;
-    min-height:100vh;
 }
 
-/* Top Bar */
+/* TOP BAR */
 .topbar{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    padding:15px 20px;
-    background:rgba(255,255,255,0.05);
-    backdrop-filter:blur(10px);
-    position:sticky;
-    top:0;
-    z-index:10;
+    padding:12px;
+    background:#111827;
 }
 
-.logo{
-    font-size:20px;
-    font-weight:700;
-    color:#00e6ff;
-}
+.logo{color:#00e6ff;font-weight:bold;}
 
-.search{
-    padding:8px 12px;
-    border-radius:10px;
+select, button{
+    padding:8px;
+    border-radius:8px;
     border:none;
-    outline:none;
-    width:50%;
+    margin:5px;
 }
 
-/* Hero */
-.hero{
+/* GAME AREA */
+.screen{
+    display:none;
     text-align:center;
-    padding:40px 20px;
+    padding:10px;
 }
 
-.hero h1{
-    font-size:38px;
+canvas{
+    background:#111827;
+    border:2px solid #00e6ff;
 }
 
-.hero p{
-    opacity:0.7;
-    margin-top:8px;
-}
-
-/* Grid */
-.container{
+/* MENU */
+.menu{
     display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
-    gap:18px;
-    max-width:1100px;
-    margin:30px auto;
-    padding:0 15px;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:10px;
+    padding:10px;
 }
 
 .card{
-    background:rgba(255,255,255,0.06);
-    border:1px solid rgba(255,255,255,0.15);
-    padding:22px;
-    border-radius:20px;
-    text-decoration:none;
-    color:white;
+    background:#1f2937;
+    padding:15px;
+    border-radius:15px;
     text-align:center;
-    transition:0.25s;
-    position:relative;
-    overflow:hidden;
+    cursor:pointer;
 }
+</style>
+</head>
 
-.card:hover{
-    transform:translateY(-8px) scale(1.03);
-    border-color:#00e6ff;
-    box-shadow:0 0 20px rgba(0,230,255,0.3);
-}
+<body>
 
-.icon{
-    font-size:42px;
-    margin-bottom:10px;
-}
+<div class="topbar">
+    <div class="logo">🎮 Game Hub Pro Max</div>
+    <div>💰 <span id="coin">0</span></div>
+</div>
 
-.card h2{
-    font-size:18px;
-}
+<!-- DROPDOWN -->
+<div style="text-align:center">
+<select onchange="switchGame(this.value)">
+<option value="">Select Game</option>
+<option value="racing">🏎 Racing</option>
+<option value="survival">🧍 Survival</option>
+</select>
+</div>
 
-.card p{
-    font-size:12px;
-    opacity:0.7;
-    margin-top:5px;
-}
+<!-- MENU -->
+<div id="menu" class="menu">
+<div class="card" onclick="openGame('racing')">🏎 Racing Game</div>
+<div class="card" onclick="openGame('survival')">🧍 Survival Game</div>
+</div>
 
-.badge{
-    position:absolute;
-    top:10px;
-    right:10px;
-    background:#00e6ff;
-    color:#000;
-    font-size:10px;
-    padding:4px 8px;
-    border-radius:8px;
-    font-weight:600;
-}
+<!-- RACING -->
+<div id="racing" class="screen">
+<h2>🏎 Racing Game</h2>
+<canvas id="race" width="300" height="400"></canvas>
+<br>
+<button onclick="back()">Back</button>
+</div>
 
-footer{
-    text-align:center;
-    padding:25px;
-    font-size:12px;
-    opacity:0.6;
-}
+<!-- SURVIVAL -->
+<div id="survival" class="screen">
+<h2>🧍 Survival Game</h2>
+<canvas id="surv" width="300" height="400"></canvas>
+<br>
+<button onclick="back()">Back</button>
+</div>
 
-
-/* Top Bar */
-.topbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:15px 20px;
-    background:rgba(255,255,255,0.05);
-    backdrop-filter:blur(10px);
-    position:sticky;
-    top:0;
-    z-index:10;
-}
-
-.logo{
-    font-size:20px;
-    font-weight:700;
-    color:#00e6ff;
-}
-
-.search{
-    padding:8px 12px;
-    border-radius:10px;
-    border:none;
-    outline:none;
-    width:50%;
-}
-
-/* Hero */
-.hero{
-    text-align:center;
-    padding:40px 20px;
-}
-
-.hero h1{
-    font-size:38px;
-}
-
-.hero p{
-    opacity:0.7;
-    margin-top:8px;
-}
-
-/* Grid */
-.container{
-    display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
-    gap:18px;
-    max-width:1100px;
-    margin:30px auto;
-    padding:0 15px;
-}
-
-.card{
-    background:rgba(255,255,255,0.06);
-    border:1px solid rgba(255,255,255,0.15);
-    padding:22px;
-    border-radius:20px;
-    text-decoration:none;
-    color:white;
-    text-align:center;
-    transition:0.25s;
-    position:relative;
-    overflow:hidden;
-}
-
-.card:hover{
-    transform:translateY(-8px) scale(1.03);
-    border-color:#00e6ff;
-    box-shadow:0 0 20px rgba(0,230,255,0.3);
-}
-
-.icon{
-    font-size:42px;
-    margin-bottom:10px;
-}
-
-.card h2{
-    font-size:18px;
-}
-
-.card p{
-    font-size:12px;
-    opacity:0.7;
-    margin-top:5px;
-}
-
-.badge{
-    position:absolute;
-    top:10px;
-    right:10px;
-    background:#00e6ff;
-    color:#000;
-    font-size:10px;
-    padding:4px 8px;
-    border-radius:8px;
-    font-weight:600;
-}
-
-footer{
-    text-align:center;
-    padding:25px;
-    font-size:12px;
-    opacity:0.6;
-}
-</style></head><body><div class="topbar">
-    <div class="logo">🎮 Game Hub Ultra</div>
-    <input class="search" type="text" placeholder="Search games...">
-</div><div class="hero">
-    <h1>Play Like a Pro 🚀</h1>
-    <p>High quality mini games in one place</p>
-</div><div class="container"><a class="card" href="tapgame.html">
-    <div class="badge">HOT</div>
-    <div class="icon">🎯</div>
-    <h2>Tap Challenge</h2>
-    <p>Test your speed & reflex</p>
-</a>
-
-<a class="card" href="quiz.html">
-    <div class="badge">NEW</div>
-    <div class="icon">🧠</div>
-    <h2>Quiz Master</h2>
-    <p>Check your knowledge</p>
-</a>
-
-<a class="card" href="snakegame.html">
-    <div class="icon">🐍</div>
-    <h2>Snake Game</h2>
-    <p>Hard Challenge</p>
-</a>
-
-<a class="card" href="tictactoe.html">
-    <div class="icon">❌⭕</div>
-    <h2>Tic Tac Toe</h2>
-    <p>AI Challenge Game</p>
-</a>
-
-</div><footer>
-    © 2026 Game Hub Ultra | Built by You 💙
-</footer>
 <script>
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js");
+
+/* COINS */
+let coins=localStorage.getItem("coins")||0;
+document.getElementById("coin").innerText=coins;
+
+/* NAV */
+function openGame(g){
+document.getElementById("menu").style.display="none";
+document.getElementById(g).style.display="block";
 }
-</script></body>
+function back(){
+document.querySelectorAll(".screen").forEach(e=>e.style.display="none");
+document.getElementById("menu").style.display="grid";
+}
+
+/* DROPDOWN */
+function switchGame(val){
+if(val) openGame(val);
+}
+
+/* SOUND */
+function beep(){
+let s=new Audio("https://www.soundjay.com/button/beep-07.wav");
+s.play();
+}
+
+/* ---------------- RACING GAME ---------------- */
+let r=document.getElementById("race");
+let rx=r.getContext("2d");
+let carX=120;
+
+document.addEventListener("keydown",e=>{
+if(e.key=="ArrowLeft") carX-=10;
+if(e.key=="ArrowRight") carX+=10;
+beep();
+});
+
+function race(){
+rx.fillStyle="#111827";
+rx.fillRect(0,0,300,400);
+
+rx.fillStyle="red";
+rx.fillRect(carX,350,40,40);
+
+requestAnimationFrame(race);
+}
+race();
+
+/* ---------------- SURVIVAL GAME ---------------- */
+let s=document.getElementById("surv");
+let sx=s.getContext("2d");
+
+let player={x:150,y:350};
+let enemy={x:100,y:0};
+
+document.addEventListener("touchmove",e=>{
+player.x=e.touches[0].clientX-50;
+});
+
+function survival(){
+sx.fillStyle="#111827";
+sx.fillRect(0,0,300,400);
+
+enemy.y+=3;
+if(enemy.y>400){
+enemy.y=0;
+enemy.x=Math.random()*300;
+coins++;
+localStorage.setItem("coins",coins);
+document.getElementById("coin").innerText=coins;
+beep();
+}
+
+sx.fillStyle="blue";
+sx.fillRect(player.x,player.y,40,40);
+
+sx.fillStyle="red";
+sx.fillRect(enemy.x,enemy.y,40,40);
+
+requestAnimationFrame(survival);
+}
+survival();
+
+</script>
+
+</body>
 </html>
