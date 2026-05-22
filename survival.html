@@ -1,212 +1,151 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Legend Ultimate Pro</title>
+<title>Survival Game</title>
 
 <style>
 body{
 margin:0;
+background:#0b1220;
+color:white;
+text-align:center;
 font-family:Arial;
-background: radial-gradient(circle at top,#0b1220,#020617);
-color:white;
 }
 
-/* TOP BAR */
-.topbar{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:15px;
-background:rgba(255,255,255,0.05);
-backdrop-filter:blur(12px);
-position:sticky;
-top:0;
+canvas{
+background:#111827;
+display:block;
+margin:10px auto;
+border:3px solid #00e6ff;
+border-radius:12px;
 }
 
-.logo{
-color:#00e6ff;
-font-weight:bold;
-font-size:20px;
-}
-
-.wallet{
-font-size:14px;
-}
-
-/* HERO */
-.hero{
-text-align:center;
-padding:25px;
-}
-
-.hero h1{
-margin:0;
-font-size:28px;
-}
-
-.hero p{
-opacity:0.7;
-}
-
-/* GRID */
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-gap:12px;
-padding:15px;
-}
-
-/* CARD */
-.card{
-background:rgba(255,255,255,0.06);
-border:1px solid rgba(255,255,255,0.1);
-padding:18px;
-border-radius:16px;
-text-align:center;
-cursor:pointer;
-transition:0.3s;
-position:relative;
-}
-
-.card:hover{
-transform:scale(1.05);
-border-color:#00e6ff;
-box-shadow:0 0 20px rgba(0,230,255,0.4);
-}
-
-.icon{
-font-size:32px;
-}
-
-.badge{
-position:absolute;
-top:8px;
-right:8px;
-background:#00e6ff;
-color:black;
-font-size:10px;
-padding:3px 6px;
-border-radius:6px;
-}
-
-/* BUTTONS */
-.btns{
-display:flex;
-justify-content:center;
-gap:10px;
-flex-wrap:wrap;
-margin:10px;
-}
-
-.btns button{
-padding:6px 10px;
+button{
+padding:10px 15px;
+margin:5px;
 border:none;
-border-radius:6px;
-background:#1f2937;
-color:white;
-cursor:pointer;
-}
-
-.btns button:hover{
+border-radius:8px;
 background:#00e6ff;
 color:black;
-}
-
-/* FOOTER */
-footer{
-text-align:center;
-padding:20px;
-opacity:0.5;
-font-size:12px;
+font-weight:bold;
+cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
-<div class="topbar">
-<div class="logo">🎮 LEGEND ULTIMATE PRO</div>
-<div class="wallet">💰 Coins: <span id="coins">0</span></div>
-</div>
+<h2>🧍 Survival Game</h2>
 
-<div class="hero">
-<h1>🔥 Ultimate Game Hub</h1>
-<p>Play • Earn Coins • Survive • Upgrade</p>
-</div>
+<canvas id="game" width="300" height="450"></canvas>
 
-<div class="btns">
-<button onclick="addCoins()">🎁 Daily Reward</button>
-<button onclick="resetCoins()">Reset</button>
-</div>
-
-<div class="grid">
-
-<div class="card" onclick="openGame('tapgame.html')">
-<div class="icon">🎯</div>
-Tap Game
-<div class="badge">HOT</div>
-</div>
-
-<div class="card" onclick="openGame('quiz.html')">
-<div class="icon">🧠</div>
-Quiz Game
-</div>
-
-<div class="card" onclick="openGame('snakegame.html')">
-<div class="icon">🐍</div>
-Snake Game
-</div>
-
-<div class="card" onclick="openGame('racing.html')">
-<div class="icon">🏎</div>
-Racing Game
-</div>
-
-<div class="card" onclick="openGame('survival.html')">
-<div class="icon">🧍</div>
-Survival GOD MODE
-<div class="badge">ULTIMATE</div>
-</div>
-
-<div class="card" onclick="openGame('tictactoe.html')">
-<div class="icon">❌⭕</div>
-Tic Tac Toe
-</div>
-
-</div>
-
-<footer>
-© Legend Ultimate Pro • Built for gamers 🚀
-</footer>
+<br>
+<button onclick="restart()">Restart</button>
+<button onclick="back()">Back</button>
 
 <script>
 
-// OPEN GAME
-function openGame(url){
-window.location.href=url;
+let canvas=document.getElementById("game");
+let ctx=canvas.getContext("2d");
+
+// PLAYER
+let player={
+x:130,
+y:380,
+w:40,
+h:40
+};
+
+// ENEMY
+let enemy={
+x:100,
+y:0,
+w:40,
+h:40,
+speed:3
+};
+
+let score=0;
+let gameOver=false;
+
+// CONTROL (keyboard)
+document.addEventListener("keydown",e=>{
+if(e.key=="ArrowLeft") player.x-=15;
+if(e.key=="ArrowRight") player.x+=15;
+});
+
+// TOUCH CONTROL
+document.addEventListener("touchmove",e=>{
+player.x=e.touches[0].clientX-50;
+});
+
+// COLLISION
+function hit(a,b){
+return a.x < b.x+b.w &&
+a.x+a.w > b.x &&
+a.y < b.y+b.h &&
+a.y+a.h > b.y;
 }
 
-// COIN SYSTEM
-let coins=localStorage.getItem("coins")||0;
-coins=parseInt(coins);
-document.getElementById("coins").innerText=coins;
+// GAME LOOP
+function update(){
 
-// DAILY REWARD
-function addCoins(){
-coins+=10;
-localStorage.setItem("coins",coins);
-document.getElementById("coins").innerText=coins;
-alert("🎁 +10 Coins Added!");
+ctx.clearRect(0,0,300,450);
+
+// PLAYER
+ctx.fillStyle="blue";
+ctx.fillRect(player.x,player.y,player.w,player.h);
+
+// ENEMY MOVE
+enemy.y+=enemy.speed;
+
+// ENEMY DRAW
+ctx.fillStyle="red";
+ctx.fillRect(enemy.x,enemy.y,enemy.w,enemy.h);
+
+// RESET ENEMY
+if(enemy.y>450){
+enemy.y=0;
+enemy.x=Math.random()*260;
+score++;
+enemy.speed+=0.2;
 }
 
-// RESET
-function resetCoins(){
-coins=0;
-localStorage.setItem("coins",coins);
-document.getElementById("coins").innerText=coins;
+// SCORE
+ctx.fillStyle="white";
+ctx.font="16px Arial";
+ctx.fillText("Score: "+score,10,20);
+
+// COLLISION CHECK
+if(hit(player,enemy)){
+gameOver=true;
+ctx.fillStyle="red";
+ctx.font="30px Arial";
+ctx.fillText("GAME OVER",60,220);
+return;
 }
+
+requestAnimationFrame(update);
+}
+
+// RESTART
+function restart(){
+player.x=130;
+enemy.y=0;
+enemy.speed=3;
+score=0;
+gameOver=false;
+update();
+}
+
+// BACK
+function back(){
+window.location.href="index.html";
+}
+
+update();
 
 </script>
 
