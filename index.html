@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pro Max Game Hub</title>
+<title>Poki Style Game Hub</title>
 
 <style>
 body{
 margin:0;
 font-family:Arial;
-background:#070b14;
+background:#0b1220;
 color:white;
 }
 
@@ -26,12 +26,17 @@ top:0;
 }
 
 .logo{
-color:#00e6ff;
+font-size:20px;
 font-weight:bold;
+color:#00e6ff;
 }
 
-.wallet{
-font-size:14px;
+input{
+padding:8px;
+border:none;
+border-radius:8px;
+width:50%;
+outline:none;
 }
 
 /* HERO */
@@ -40,16 +45,25 @@ text-align:center;
 padding:20px;
 }
 
-/* BUTTONS */
-.btns{
+.hero h1{
+margin:0;
+font-size:26px;
+}
+
+.hero p{
+opacity:0.7;
+}
+
+/* CATEGORY */
+.categories{
 display:flex;
 justify-content:center;
-gap:10px;
 flex-wrap:wrap;
+gap:10px;
 margin:10px;
 }
 
-.btns button{
+.categories button{
 padding:6px 10px;
 border:none;
 border-radius:6px;
@@ -58,7 +72,7 @@ color:white;
 cursor:pointer;
 }
 
-.btns button:hover{
+.categories button:hover{
 background:#00e6ff;
 color:black;
 }
@@ -66,7 +80,7 @@ color:black;
 /* GRID */
 .grid{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
 gap:12px;
 padding:15px;
 }
@@ -76,7 +90,7 @@ padding:15px;
 background:rgba(255,255,255,0.06);
 border:1px solid rgba(255,255,255,0.1);
 padding:15px;
-border-radius:15px;
+border-radius:16px;
 text-align:center;
 cursor:pointer;
 transition:0.3s;
@@ -86,16 +100,18 @@ position:relative;
 .card:hover{
 transform:scale(1.05);
 border-color:#00e6ff;
+box-shadow:0 0 15px rgba(0,230,255,0.3);
 }
 
 .icon{
-font-size:28px;
+font-size:30px;
+margin-bottom:5px;
 }
 
 .badge{
 position:absolute;
-top:5px;
-right:5px;
+top:8px;
+right:8px;
 background:#00e6ff;
 color:black;
 font-size:10px;
@@ -116,47 +132,49 @@ font-size:12px;
 <body>
 
 <div class="topbar">
-<div class="logo">🎮 PRO MAX HUB</div>
-<div class="wallet">💰 Coins: <span id="coins">0</span></div>
+<div class="logo">🎮 Game Hub</div>
+<input placeholder="Search games..." onkeyup="searchGame(this.value)">
 </div>
 
 <div class="hero">
-<h1>🔥 Play & Earn Hub</h1>
-<p>Survival • Racing • Puzzle • Fun Games</p>
+<h1>🔥 Play Free Online Games</h1>
+<p>Racing • Survival • Action • Fun</p>
 </div>
 
-<div class="btns">
-<button onclick="daily()">🎁 Daily Reward</button>
-<button onclick="resetCoins()">Reset</button>
+<div class="categories">
+<button onclick="filter('all')">All</button>
+<button onclick="filter('action')">Action</button>
+<button onclick="filter('survival')">Survival</button>
+<button onclick="filter('racing')">Racing</button>
 </div>
 
 <div class="grid">
 
-<div class="card" onclick="openGame('tapgame.html')">
+<div class="card action" onclick="openGame('tapgame.html')">
 <div class="icon">🎯</div>
 Tap Game
 <div class="badge">HOT</div>
 </div>
 
-<div class="card" onclick="openGame('quiz.html')">
+<div class="card action" onclick="openGame('quiz.html')">
 <div class="icon">🧠</div>
 Quiz Game
 </div>
 
-<div class="card" onclick="openGame('survival.html')">
+<div class="card survival" onclick="openGame('survival.html')">
 <div class="icon">🧍</div>
-Survival
+Survival Game
 <div class="badge">NEW</div>
 </div>
 
-<div class="card" onclick="openGame('racing.html')">
+<div class="card racing" onclick="openGame('racing.html')">
 <div class="icon">🏎</div>
-Racing
+Racing Game
 </div>
 
 <div class="card" onclick="openGame('snakegame.html')">
 <div class="icon">🐍</div>
-Snake
+Snake Game
 </div>
 
 <div class="card" onclick="openGame('tictactoe.html')">
@@ -167,7 +185,7 @@ Tic Tac Toe
 </div>
 
 <footer>
-© Pro Max Game Hub 🚀
+© Game Hub • Inspired by Poki 🚀
 </footer>
 
 <script>
@@ -177,24 +195,24 @@ function openGame(file){
 window.location.href=file;
 }
 
-// COINS SYSTEM
-let coins=localStorage.getItem("coins")||0;
-coins=parseInt(coins);
-document.getElementById("coins").innerText=coins;
-
-// DAILY REWARD
-function daily(){
-coins+=20;
-localStorage.setItem("coins",coins);
-document.getElementById("coins").innerText=coins;
-alert("🎁 +20 Coins Added!");
+// FILTER
+function filter(type){
+let cards=document.querySelectorAll(".card");
+cards.forEach(c=>{
+if(type=="all"){
+c.style.display="block";
+}else{
+c.style.display=c.classList.contains(type)?"block":"none";
+}
+});
 }
 
-// RESET
-function resetCoins(){
-coins=0;
-localStorage.setItem("coins",coins);
-document.getElementById("coins").innerText=coins;
+// SEARCH
+function searchGame(val){
+let cards=document.querySelectorAll(".card");
+cards.forEach(c=>{
+c.style.display=c.innerText.toLowerCase().includes(val.toLowerCase())?"block":"none";
+});
 }
 
 </script>
