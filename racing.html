@@ -3,23 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Car Racing Game</title>
+<title>Ultimate Racing Pro Max</title>
 
 <style>
 body{
 margin:0;
-background:#0f172a;
+background:#070b14;
 color:white;
 text-align:center;
 font-family:Arial;
 }
 
 canvas{
-background:#2b2b2b;
+background:#111827;
 display:block;
 margin:10px auto;
 border:3px solid #00e6ff;
-border-radius:10px;
+border-radius:12px;
+}
+
+.hud{
+display:flex;
+justify-content:space-around;
+padding:10px;
+font-weight:bold;
 }
 
 button{
@@ -36,13 +43,19 @@ font-weight:bold;
 
 <body>
 
-<h2>🏎 Real Car Racing</h2>
+<h2>🏎 ULTIMATE RACING PRO MAX</h2>
+
+<div class="hud">
+<div>💰 Coins: <span id="coins">0</span></div>
+<div>⚡ Speed: <span id="speed">4</span></div>
+<div>🏁 Score: <span id="score">0</span></div>
+</div>
 
 <canvas id="game" width="300" height="500"></canvas>
 
 <br>
-<button onclick="startGame()">Restart</button>
-<button onclick="goBack()">Back</button>
+<button onclick="restart()">Restart</button>
+<button onclick="back()">Back</button>
 
 <script>
 
@@ -50,51 +63,61 @@ let canvas=document.getElementById("game");
 let ctx=canvas.getContext("2d");
 
 // CAR
-let car={
-x:130,
-y:420,
-w:40,
-h:60
-};
+let car={x:130,y:420,w:40,h:60,dx:0};
 
-// ROAD LINES
-let lines=[];
-for(let i=0;i<5;i++){
-lines.push({x:150,y:i*100});
-}
+// ENEMY
+let enemy={x:100,y:-100,w:40,h:60,speed:4};
 
-// OBSTACLE
-let enemy={x:Math.random()*250,y:-100,w:40,h:60,speed:4};
+// COIN
+let coin={x:120,y:-200,w:20,h:20};
 
+let coins=0;
 let score=0;
 let gameOver=false;
 
-// CONTROL
+// CONTROLS (SMOOTH MOVEMENT)
 document.addEventListener("keydown",e=>{
-if(e.key=="ArrowLeft") car.x-=20;
-if(e.key=="ArrowRight") car.x+=20;
+if(e.key=="ArrowLeft") car.dx=-5;
+if(e.key=="ArrowRight") car.dx=5;
+
+// NITRO
+if(e.key==" "){
+enemy.speed+=1;
+}
 });
 
-// TOUCH CONTROL (mobile)
+document.addEventListener("keyup",()=>{
+car.dx=0;
+});
+
+// TOUCH CONTROL
 document.addEventListener("touchmove",e=>{
 car.x=e.touches[0].clientX-50;
 });
 
-// DRAW CAR (real style block)
+// CAR DRAW
 function drawCar(x,y,color){
 ctx.fillStyle=color;
 ctx.fillRect(x,y,40,60);
 
-// windows
+// glass
 ctx.fillStyle="#87ceeb";
 ctx.fillRect(x+8,y+10,24,15);
 
 // wheels
 ctx.fillStyle="black";
-ctx.fillRect(x-5,y+10,5,10);
-ctx.fillRect(x-5,y+40,5,10);
-ctx.fillRect(x+40,y+10,5,10);
-ctx.fillRect(x+40,y+40,5,10);
+ctx.fillRect(x-5,y+10,5,12);
+ctx.fillRect(x-5,y+40,5,12);
+ctx.fillRect(x+40,y+10,5,12);
+ctx.fillRect(x+40,y+40,5,12);
+}
+
+// COLLISION
+function hit(a,b){
+return a.x < b.x+b.w &&
+a.x+a.w > b.x &&
+a.y < b.y+b.h &&
+a.y+a.h > b.y;
 }
 
 // GAME LOOP
@@ -103,76 +126,91 @@ function update(){
 ctx.clearRect(0,0,300,500);
 
 // ROAD
-ctx.fillStyle="#444";
+ctx.fillStyle="#0b1220";
 ctx.fillRect(50,0,200,500);
 
-// ROAD LINE ANIMATION
+// ROAD LINES (MOVING)
 ctx.fillStyle="white";
-for(let i=0;i<lines.length;i++){
-lines[i].y+=5;
-ctx.fillRect(lines[i].x,lines[i].y,5,30);
-
-if(lines[i].y>500){
-lines[i].y=-50;
-score++;
-}
+for(let i=0;i<6;i++){
+ctx.fillRect(150,(i*100+score*5)%500,5,30);
 }
 
-// ENEMY CAR
+// CAR MOVE (SMOOTH + LIMIT)
+car.x+=car.dx;
+if(car.x<60) car.x=60;
+if(car.x>240) car.x=240;
+
+// PLAYER
+drawCar(car.x,car.y,"red");
+
+// ENEMY MOVE
 enemy.y+=enemy.speed;
+drawCar(enemy.x,enemy.y,"yellow");
 
+// RESET ENEMY
 if(enemy.y>500){
 enemy.y=-100;
-enemy.x=Math.random()*250;
+enemy.x=Math.random()*240;
 enemy.speed+=0.2;
+score++;
+document.getElementById("score").innerText=score;
+document.getElementById("speed").innerText=Math.floor(enemy.speed);
+}
+
+// COIN MOVE
+coin.y+=3;
+ctx.fillStyle="gold";
+ctx.fillRect(coin.x,coin.y,20,20);
+
+// COIN PICK
+if(hit(car,coin)){
+coins++;
+coin.y=-200;
+coin.x=Math.random()*240;
+document.getElementById("coins").innerText=coins;
+}
+
+// RESET COIN
+if(coin.y>500){
+coin.y=-200;
+coin.x=Math.random()*240;
 }
 
 // COLLISION
-if(
-car.x < enemy.x + enemy.w &&
-car.x + car.w > enemy.x &&
-car.y < enemy.y + enemy.h &&
-car.y + car.h > enemy.y
-){
+if(hit(car,enemy)){
 gameOver=true;
-}
-
-// DRAW PLAYER CAR
-drawCar(car.x,car.y,"red");
-
-// DRAW ENEMY CAR
-drawCar(enemy.x,enemy.y,"yellow");
-
-// SCORE
-ctx.fillStyle="white";
-ctx.font="16px Arial";
-ctx.fillText("Score: "+score,10,20);
-
-// GAME OVER
-if(gameOver){
 ctx.fillStyle="red";
 ctx.font="30px Arial";
-ctx.fillText("GAME OVER",60,250);
+ctx.fillText("CRASH!",100,250);
 return;
 }
 
 requestAnimationFrame(update);
 }
 
-function startGame(){
+// RESTART
+function restart(){
 car.x=130;
 enemy.y=-100;
 enemy.speed=4;
+coins=0;
 score=0;
+car.dx=0;
 gameOver=false;
+
+document.getElementById("coins").innerText=0;
+document.getElementById("score").innerText=0;
+document.getElementById("speed").innerText=4;
+
 update();
 }
 
-function goBack(){
+// BACK
+function back(){
 window.location.href="index.html";
 }
 
-startGame();
+update();
 
 </script>
 
