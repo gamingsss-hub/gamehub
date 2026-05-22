@@ -3,60 +3,52 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Game Hub Pro Max</title>
+<title>Game Hub Ultra Fixed</title>
 
 <style>
 body{
-    margin:0;
-    font-family:Arial;
-    background:#0f172a;
-    color:white;
+margin:0;
+font-family:Arial;
+background:#0f172a;
+color:white;
 }
 
-/* TOP BAR */
 .topbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:12px;
-    background:#111827;
+display:flex;
+justify-content:space-between;
+padding:12px;
+background:#111827;
 }
 
 .logo{color:#00e6ff;font-weight:bold;}
 
-select, button{
-    padding:8px;
-    border-radius:8px;
-    border:none;
-    margin:5px;
-}
-
-/* GAME AREA */
-.screen{
-    display:none;
-    text-align:center;
-    padding:10px;
-}
-
-canvas{
-    background:#111827;
-    border:2px solid #00e6ff;
-}
-
-/* MENU */
 .menu{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-    gap:10px;
-    padding:10px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+gap:10px;
+padding:10px;
 }
 
 .card{
-    background:#1f2937;
-    padding:15px;
-    border-radius:15px;
-    text-align:center;
-    cursor:pointer;
+background:#1f2937;
+padding:15px;
+border-radius:12px;
+text-align:center;
+cursor:pointer;
+}
+
+.game{display:none;text-align:center;padding:10px;}
+
+canvas{
+background:#111827;
+border:2px solid #00e6ff;
+}
+
+button{
+padding:8px;
+margin:5px;
+border:none;
+border-radius:8px;
 }
 </style>
 </head>
@@ -64,46 +56,60 @@ canvas{
 <body>
 
 <div class="topbar">
-    <div class="logo">🎮 Game Hub Pro Max</div>
-    <div>💰 <span id="coin">0</span></div>
-</div>
-
-<!-- DROPDOWN -->
-<div style="text-align:center">
-<select onchange="switchGame(this.value)">
-<option value="">Select Game</option>
-<option value="racing">🏎 Racing</option>
-<option value="survival">🧍 Survival</option>
-</select>
+<div class="logo">🎮 Game Hub Ultra Fixed</div>
+<div>💰 <span id="coins">0</span></div>
 </div>
 
 <!-- MENU -->
 <div id="menu" class="menu">
-<div class="card" onclick="openGame('racing')">🏎 Racing Game</div>
-<div class="card" onclick="openGame('survival')">🧍 Survival Game</div>
+
+<div class="card" onclick="openGame('tap')">🎯 Tap Game</div>
+<div class="card" onclick="openGame('quiz')">🧠 Quiz</div>
+<div class="card" onclick="openGame('snake')">🐍 Snake</div>
+<div class="card" onclick="openGame('racing')">🏎 Racing</div>
+<div class="card" onclick="openGame('survival')">🧍 Survival</div>
+
+</div>
+
+<!-- TAP -->
+<div id="tap" class="game">
+<h2>Tap Game</h2>
+<button onclick="tap()">TAP</button>
+<p>Score: <span id="tapScore">0</span></p>
+<button onclick="back()">Back</button>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz" class="game">
+<h2>Quiz</h2>
+<p>2 + 2 = ?</p>
+<button onclick="q(true)">4</button>
+<button onclick="q(false)">5</button>
+<br><button onclick="back()">Back</button>
+</div>
+
+<!-- SNAKE -->
+<div id="snake" class="game">
+<h2>Snake</h2>
+<canvas id="c" width="250" height="250"></canvas>
+<br><button onclick="back()">Back</button>
 </div>
 
 <!-- RACING -->
-<div id="racing" class="screen">
-<h2>🏎 Racing Game</h2>
-<canvas id="race" width="300" height="400"></canvas>
-<br>
-<button onclick="back()">Back</button>
+<div id="racing" class="game">
+<h2>Racing</h2>
+<canvas id="r" width="250" height="250"></canvas>
+<br><button onclick="back()">Back</button>
 </div>
 
 <!-- SURVIVAL -->
-<div id="survival" class="screen">
-<h2>🧍 Survival Game</h2>
-<canvas id="surv" width="300" height="400"></canvas>
-<br>
-<button onclick="back()">Back</button>
+<div id="survival" class="game">
+<h2>Survival</h2>
+<canvas id="s" width="250" height="250"></canvas>
+<br><button onclick="back()">Back</button>
 </div>
 
 <script>
-
-/* COINS */
-let coins=localStorage.getItem("coins")||0;
-document.getElementById("coin").innerText=coins;
 
 /* NAV */
 function openGame(g){
@@ -111,77 +117,112 @@ document.getElementById("menu").style.display="none";
 document.getElementById(g).style.display="block";
 }
 function back(){
-document.querySelectorAll(".screen").forEach(e=>e.style.display="none");
+document.querySelectorAll(".game").forEach(e=>e.style.display="none");
 document.getElementById("menu").style.display="grid";
 }
 
-/* DROPDOWN */
-function switchGame(val){
-if(val) openGame(val);
+/* COINS */
+let coins=localStorage.getItem("coins")||0;
+document.getElementById("coins").innerText=coins;
+
+function addCoin(){
+coins++;
+localStorage.setItem("coins",coins);
+document.getElementById("coins").innerText=coins;
 }
 
-/* SOUND */
-function beep(){
-let s=new Audio("https://www.soundjay.com/button/beep-07.wav");
-s.play();
+/* TAP */
+let t=0;
+function tap(){
+t++; addCoin();
+document.getElementById("tapScore").innerText=t;
 }
 
-/* ---------------- RACING GAME ---------------- */
-let r=document.getElementById("race");
-let rx=r.getContext("2d");
+/* QUIZ */
+function q(c){
+if(c){ alert("Correct!"); addCoin(); }
+else alert("Wrong!");
+}
+
+/* ---------------- SNAKE ---------------- */
+let c=document.getElementById("c");
+let x=50,y=50,dir="right";
+let ctx=c.getContext("2d");
+
+document.addEventListener("keydown",e=>{
+if(e.key=="ArrowLeft")dir="left";
+if(e.key=="ArrowRight")dir="right";
+if(e.key=="ArrowUp")dir="up";
+if(e.key=="ArrowDown")dir="down";
+});
+
+setInterval(()=>{
+ctx.fillStyle="#111827";
+ctx.fillRect(0,0,250,250);
+
+ctx.fillStyle="lime";
+ctx.fillRect(x,y,10,10);
+
+if(dir=="right")x+=10;
+if(dir=="left")x-=10;
+if(dir=="up")y-=10;
+if(dir=="down")y+=10;
+
+if(x<0)x=240;
+if(y<0)y=240;
+if(x>240)x=0;
+if(y>240)y=0;
+
+},150);
+
+/* ---------------- RACING ---------------- */
+let r=document.getElementById("r");
+let rc=r.getContext("2d");
 let carX=120;
 
 document.addEventListener("keydown",e=>{
-if(e.key=="ArrowLeft") carX-=10;
-if(e.key=="ArrowRight") carX+=10;
-beep();
+if(e.key=="ArrowLeft")carX-=10;
+if(e.key=="ArrowRight")carX+=10;
 });
 
 function race(){
-rx.fillStyle="#111827";
-rx.fillRect(0,0,300,400);
+rc.fillStyle="#111827";
+rc.fillRect(0,0,250,250);
 
-rx.fillStyle="red";
-rx.fillRect(carX,350,40,40);
+rc.fillStyle="red";
+rc.fillRect(carX,200,30,30);
 
 requestAnimationFrame(race);
 }
 race();
 
-/* ---------------- SURVIVAL GAME ---------------- */
-let s=document.getElementById("surv");
-let sx=s.getContext("2d");
+/* ---------------- SURVIVAL ---------------- */
+let sc=document.getElementById("s");
+let sx=sc.getContext("2d");
 
-let player={x:150,y:350};
-let enemy={x:100,y:0};
+let px=100;
+let ex=50,ey=0;
 
 document.addEventListener("touchmove",e=>{
-player.x=e.touches[0].clientX-50;
+px=e.touches[0].clientX-50;
 });
 
-function survival(){
+function surv(){
 sx.fillStyle="#111827";
-sx.fillRect(0,0,300,400);
+sx.fillRect(0,0,250,250);
 
-enemy.y+=3;
-if(enemy.y>400){
-enemy.y=0;
-enemy.x=Math.random()*300;
-coins++;
-localStorage.setItem("coins",coins);
-document.getElementById("coin").innerText=coins;
-beep();
-}
+ey+=3;
+if(ey>250){ey=0; ex=Math.random()*250; addCoin();}
 
 sx.fillStyle="blue";
-sx.fillRect(player.x,player.y,40,40);
+sx.fillRect(px,200,30,30);
 
 sx.fillStyle="red";
-sx.fillRect(enemy.x,enemy.y,40,40);
+sx.fillRect(ex,ey,30,30);
 
-requestAnimationFrame(survival);
+requestAnimationFrame(surv);
 }
-survival();
+surv();
 
 </script>
 
