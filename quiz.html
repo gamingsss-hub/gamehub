@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Game</title>
+
+<style>
+body{
+font-family:Arial;
+background:#111827;
+color:white;
+text-align:center;
+padding:20px;
+}
+
+.box{
+max-width:500px;
+margin:auto;
+background:#1f2937;
+padding:20px;
+border-radius:15px;
+}
+
+button{
+display:block;
+width:100%;
+margin:10px 0;
+padding:12px;
+font-size:18px;
+cursor:pointer;
+border:none;
+border-radius:8px;
+}
+
+.correct{
+background:green;
+color:white;
+}
+
+.wrong{
+background:red;
+color:white;
+}
+</style>
+</head>
+<body>
+
+<div class="box">
+
+<h1>🧠 Quiz Game</h1>
+
+<h2 id="question"></h2>
+
+<button onclick="checkAnswer(0)" id="btn0"></button>
+<button onclick="checkAnswer(1)" id="btn1"></button>
+<button onclick="checkAnswer(2)" id="btn2"></button>
+<button onclick="checkAnswer(3)" id="btn3"></button>
+
+<h3 id="score"></h3>
+
+</div>
+
+<script>
+
+const quiz=[
+{
+q:"India ki capital kya hai?",
+a:["Delhi","Mumbai","Chennai","Kolkata"],
+c:0
+},
+{
+q:"2 + 2 = ?",
+a:["3","4","5","6"],
+c:1
+},
+{
+q:"Earth par kitne continents hain?",
+a:["5","6","7","8"],
+c:2
+}
+];
+
+let current=0;
+let score=0;
+
+function loadQuestion(){
+
+document.getElementById("question").innerText=
+quiz[current].q;
+
+for(let i=0;i<4;i++){
+document.getElementById("btn"+i).innerText=
+quiz[current].a[i];
+}
+
+}
+
+function checkAnswer(index){
+
+if(index===quiz[current].c){
+score++;
+}
+
+current++;
+
+if(current<quiz.length){
+loadQuestion();
+}
+else{
+document.querySelector(".box").innerHTML=
+"<h1>🎉 Quiz Complete!</h1><h2>Score: "+
+score+" / "+quiz.length+"</h2>";
+}
+
+}
+
+loadQuestion();
+
+</script>
+
+</body>
+</html>

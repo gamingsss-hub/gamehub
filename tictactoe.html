@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tic Tac Toe AI</title>
+
+<style>
+body{
+    margin:0;
+    background:#0f172a;
+    color:white;
+    font-family:Arial;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+}
+
+h1{ margin-bottom:10px; }
+
+select{
+    padding:8px;
+    margin-bottom:10px;
+    border-radius:8px;
+    border:none;
+    font-weight:bold;
+}
+
+.board{
+    display:grid;
+    grid-template-columns:repeat(3,100px);
+    grid-template-rows:repeat(3,100px);
+    gap:5px;
+}
+
+.cell{
+    background:#111827;
+    border:2px solid #00e6ff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:40px;
+    cursor:pointer;
+}
+
+button{
+    margin-top:15px;
+    padding:10px 20px;
+    border:none;
+    background:#00e6ff;
+    color:black;
+    font-weight:bold;
+    border-radius:10px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>❌⭕ Tic Tac Toe AI</h1>
+
+<select id="level">
+    <option value="easy">😄 Easy</option>
+    <option value="hard">😈 Hard</option>
+</select>
+
+<div class="board" id="board"></div>
+
+<button onclick="resetGame()">Restart 🔁</button>
+
+<script>
+let boardEl = document.getElementById("board");
+let levelEl = document.getElementById("level");
+
+let board = Array(9).fill("");
+let gameOver = false;
+
+function createBoard(){
+    boardEl.innerHTML = "";
+    board = Array(9).fill("");
+    gameOver = false;
+
+    for(let i=0;i<9;i++){
+        let cell = document.createElement("div");
+        cell.classList.add("cell");
+        cell.addEventListener("click", ()=>playerMove(i, cell));
+        boardEl.appendChild(cell);
+    }
+}
+
+function playerMove(i, cell){
+    if(board[i] || gameOver) return;
+
+    board[i] = "❌";
+    cell.innerHTML = "❌";
+
+    if(checkWin("❌")){
+        gameOver = true;
+        setTimeout(()=>alert("You Win 🎉"),100);
+        return;
+    }
+
+    if(!board.includes("")){
+        gameOver = true;
+        setTimeout(()=>alert("Draw!"),100);
+        return;
+    }
+
+    setTimeout(aiMove, 400);
+}
+
+function aiMove(){
+    if(gameOver) return;
+
+    let level = levelEl.value;
+    let move;
+
+    if(level === "easy"){
+        move = easyMove();
+    } else {
+        move = hardMove();
+    }
+
+    board[move] = "⭕";
+    boardEl.children[move].innerHTML = "⭕";
+
+    if(checkWin("⭕")){
+        gameOver = true;
+        setTimeout(()=>alert("AI Wins 🤖"),100);
+    }
+}
+
+/* 😄 EASY = random */
+function easyMove(){
+    let empty = [];
+    board.forEach((v,i)=>{ if(v==="") empty.push(i); });
+    return empty[Math.floor(Math.random()*empty.length)];
+}
+
+/* 😈 HARD = win/block logic */
+function hardMove(){
+    let empty = [];
+    board.forEach((v,i)=>{ if(v==="") empty.push(i); });
+
+    // 1. AI try win
+    for(let i of empty){
+        board[i]="⭕";
+        if(checkWin("⭕")){ board[i]=""; return i; }
+        board[i]="";
+    }
+
+    // 2. block player win
+    for(let i of empty){
+        board[i]="❌";
+        if(checkWin("❌")){ board[i]=""; return i; }
+        board[i]="";
+    }
+
+    // 3. random move
+    return easyMove();
+}
+
+function checkWin(p){
+    const win = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+    ];
+
+    return win.some(c=>{
+        return board[c[0]]===p && board[c[1]]===p && board[c[2]]===p;
+    });
+}
+
+function resetGame(){
+    createBoard();
+}
+
+createBoard();
+</script>
+
+</body>
+</html>
