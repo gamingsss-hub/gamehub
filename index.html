@@ -1,19 +1,25 @@
+HTML
 <!DOCTYPE html>
 <html>
-<body style="background:#0f172a;color:white;text-align:center">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Hub</title>
+<style>
+body{margin:0;font-family:Arial;background:#0f172a;color:white;text-align:center}
+.card{margin:10px;padding:15px;background:#1f2937;border-radius:10px;cursor:pointer}
+</style>
+</head>
 
-<h2>Tap Game Test</h2>
+<body>
 
-<button onclick="tap()">Tap</button>
-<p>Score: <span id="s">0</span></p>
+<h2>🎮 Game Hub</h2>
 
-<script>
-let s=0;
-function tap(){
-s++;
-document.getElementById("s").innerText=s;
-}
-</script>
+<div class="card" onclick="location.href='tapgame.html'">🎯 Tap Game</div>
+<div class="card" onclick="location.href='quiz.html'">🧠 Quiz Game</div>
+<div class="card" onclick="location.href='snakegame.html'">🐍 Snake Game</div>
+<div class="card" onclick="location.href='racing.html'">🏎 Racing Game</div>
+<div class="card" onclick="location.href='survival.html'">🧍 Survival Game</div>
 
 </body>
 </html>
