@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Survival Game</title>
+<title>Survival Final Boss</title>
 
 <style>
 body{
@@ -19,13 +19,31 @@ background:#111827;
 display:block;
 margin:10px auto;
 border:2px solid #00e6ff;
+border-radius:10px;
+}
+
+.hud{
+display:flex;
+justify-content:space-around;
+padding:10px;
+font-weight:bold;
+}
+
+.health{
+color:#ff4d4d;
 }
 </style>
 </head>
 
 <body>
 
-<h2>🧍 Survival Game</h2>
+<h2>👹 SURVIVAL FINAL BOSS</h2>
+
+<div class="hud">
+<div>💰 Coins: <span id="coins">0</span></div>
+<div>🏁 Score: <span id="score">0</span></div>
+<div class="health">❤️ HP: <span id="hp">3</span></div>
+</div>
 
 <canvas id="game" width="300" height="450"></canvas>
 
@@ -35,17 +53,27 @@ border:2px solid #00e6ff;
 
 <script>
 
-let canvas=document.getElementById("game");
-let ctx=canvas.getContext("2d");
+let c=document.getElementById("game");
+let ctx=c.getContext("2d");
 
 // PLAYER
 let player={x:130,y:380};
 
-// ENEMY
-let enemy={x:100,y:0};
+// ENEMIES
+let enemies=[
+{x:50,y:0,s:3},
+{x:150,y:-200,s:4},
+{x:220,y:-400,s:5}
+];
 
-// START GAME FLAG
-let running=true;
+// BOSS
+let boss={x:120,y:-600,w:80,h:80,hp:10,active:false};
+
+// STATS
+let coins=0;
+let score=0;
+let hp=3;
+let gameOver=false;
 
 // CONTROLS
 document.addEventListener("keydown",e=>{
@@ -53,10 +81,23 @@ if(e.key=="ArrowLeft") player.x-=15;
 if(e.key=="ArrowRight") player.x+=15;
 });
 
-// LOOP (IMPORTANT)
+// TOUCH
+document.addEventListener("touchmove",e=>{
+player.x=e.touches[0].clientX-50;
+});
+
+// COLLISION
+function hit(a,b,w=40,h=40){
+return a.x < b.x+w &&
+a.x+40 > b.x &&
+a.y < b.y+h &&
+a.y+40 > b.y;
+}
+
+// LOOP
 function loop(){
 
-if(!running) return;
+if(gameOver) return;
 
 ctx.clearRect(0,0,300,450);
 
@@ -64,29 +105,75 @@ ctx.clearRect(0,0,300,450);
 ctx.fillStyle="blue";
 ctx.fillRect(player.x,player.y,40,40);
 
-// ENEMY
-enemy.y+=4;
-ctx.fillStyle="red";
-ctx.fillRect(enemy.x,enemy.y,40,40);
+// ENEMIES
+for(let e of enemies){
 
-// RESET ENEMY
-if(enemy.y>450){
-enemy.y=0;
-enemy.x=Math.random()*260;
+e.y+=e.s;
+
+// draw enemy
+ctx.fillStyle="red";
+ctx.fillRect(e.x,e.y,40,40);
+
+// reset
+if(e.y>450){
+e.y=-100;
+e.x=Math.random()*260;
+score++;
+document.getElementById("score").innerText=score;
 }
 
-// COLLISION
-if(
-player.x < enemy.x+40 &&
-player.x+40 > enemy.x &&
-player.y < enemy.y+40 &&
-player.y+40 > enemy.y
-){
-running=false;
+// collision
+if(hit(player,e)){
+hp--;
+document.getElementById("hp").innerText=hp;
+e.y=-100;
+
+if(hp<=0){
+gameOver=true;
 ctx.fillStyle="red";
 ctx.font="20px Arial";
-ctx.fillText("GAME OVER",90,220);
-return;
+ctx.fillText("GAME OVER",80,220);
+}
+}
+}
+
+// BOSS SPAWN
+if(score>=10){
+boss.active=true;
+}
+
+// BOSS
+if(boss.active){
+
+boss.y+=2;
+
+ctx.fillStyle="purple";
+ctx.fillRect(boss.x,boss.y,boss.w,boss.h);
+
+// boss hit
+if(hit(player,boss,boss.w,boss.h)){
+hp-=2;
+document.getElementById("hp").innerText=hp;
+
+if(hp<=0){
+gameOver=true;
+ctx.fillText("BOSS KILLED YOU",60,220);
+}
+}
+
+// reset boss
+if(boss.y>450){
+boss.y=-600;
+boss.hp--;
+score+=5;
+document.getElementById("score").innerText=score;
+}
+}
+
+// COINS (random reward)
+if(Math.random()<0.02){
+coins++;
+document.getElementById("coins").innerText=coins;
 }
 
 requestAnimationFrame(loop);
@@ -102,7 +189,6 @@ function back(){
 window.location.href="index.html";
 }
 
-// START GAME (VERY IMPORTANT)
 loop();
 
 </script>
