@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Car Racing Game</title>
+
+<style>
+body{
+margin:0;
+background:#0f172a;
+color:white;
+text-align:center;
+font-family:Arial;
+}
+
+canvas{
+background:#2b2b2b;
+display:block;
+margin:10px auto;
+border:3px solid #00e6ff;
+border-radius:10px;
+}
+
+button{
+padding:10px 15px;
+margin:5px;
+border:none;
+border-radius:8px;
+background:#00e6ff;
+color:black;
+font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🏎 Real Car Racing</h2>
+
+<canvas id="game" width="300" height="500"></canvas>
+
+<br>
+<button onclick="startGame()">Restart</button>
+<button onclick="goBack()">Back</button>
+
+<script>
+
+let canvas=document.getElementById("game");
+let ctx=canvas.getContext("2d");
+
+// CAR
+let car={
+x:130,
+y:420,
+w:40,
+h:60
+};
+
+// ROAD LINES
+let lines=[];
+for(let i=0;i<5;i++){
+lines.push({x:150,y:i*100});
+}
+
+// OBSTACLE
+let enemy={x:Math.random()*250,y:-100,w:40,h:60,speed:4};
+
+let score=0;
+let gameOver=false;
+
+// CONTROL
+document.addEventListener("keydown",e=>{
+if(e.key=="ArrowLeft") car.x-=20;
+if(e.key=="ArrowRight") car.x+=20;
+});
+
+// TOUCH CONTROL (mobile)
+document.addEventListener("touchmove",e=>{
+car.x=e.touches[0].clientX-50;
+});
+
+// DRAW CAR (real style block)
+function drawCar(x,y,color){
+ctx.fillStyle=color;
+ctx.fillRect(x,y,40,60);
+
+// windows
+ctx.fillStyle="#87ceeb";
+ctx.fillRect(x+8,y+10,24,15);
+
+// wheels
+ctx.fillStyle="black";
+ctx.fillRect(x-5,y+10,5,10);
+ctx.fillRect(x-5,y+40,5,10);
+ctx.fillRect(x+40,y+10,5,10);
+ctx.fillRect(x+40,y+40,5,10);
+}
+
+// GAME LOOP
+function update(){
+
+ctx.clearRect(0,0,300,500);
+
+// ROAD
+ctx.fillStyle="#444";
+ctx.fillRect(50,0,200,500);
+
+// ROAD LINE ANIMATION
+ctx.fillStyle="white";
+for(let i=0;i<lines.length;i++){
+lines[i].y+=5;
+ctx.fillRect(lines[i].x,lines[i].y,5,30);
+
+if(lines[i].y>500){
+lines[i].y=-50;
+score++;
+}
+}
+
+// ENEMY CAR
+enemy.y+=enemy.speed;
+
+if(enemy.y>500){
+enemy.y=-100;
+enemy.x=Math.random()*250;
+enemy.speed+=0.2;
+}
+
+// COLLISION
+if(
+car.x < enemy.x + enemy.w &&
+car.x + car.w > enemy.x &&
+car.y < enemy.y + enemy.h &&
+car.y + car.h > enemy.y
+){
+gameOver=true;
+}
+
+// DRAW PLAYER CAR
+drawCar(car.x,car.y,"red");
+
+// DRAW ENEMY CAR
+drawCar(enemy.x,enemy.y,"yellow");
+
+// SCORE
+ctx.fillStyle="white";
+ctx.font="16px Arial";
+ctx.fillText("Score: "+score,10,20);
+
+// GAME OVER
+if(gameOver){
+ctx.fillStyle="red";
+ctx.font="30px Arial";
+ctx.fillText("GAME OVER",60,250);
+return;
+}
+
+requestAnimationFrame(update);
+}
+
+function startGame(){
+car.x=130;
+enemy.y=-100;
+enemy.speed=4;
+score=0;
+gameOver=false;
+update();
+}
+
+function goBack(){
+window.location.href="index.html";
+}
+
+startGame();
+
+</script>
+
+</body>
+</html>
