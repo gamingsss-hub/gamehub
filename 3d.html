@@ -3,22 +3,52 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3D Game Start</title>
+<title>3D Racing</title>
 <style>
-body { margin: 0; overflow: hidden; }
+body{margin:0;overflow:hidden;background:black}
+#score{
+position:absolute;
+top:10px;
+left:10px;
+color:white;
+font-size:22px;
+font-family:Arial;
+z-index:10;
+}
+#controls{
+position:absolute;
+bottom:20px;
+width:100%;
+display:flex;
+justify-content:space-between;
+padding:0 20px;
+box-sizing:border-box;
+z-index:10;
+}
+.btn{
+width:80px;
+height:80px;
+font-size:30px;
+border:none;
+border-radius:50%;
+opacity:0.8;
+}
 </style>
 </head>
-
 <body>
+
+<div id="score">Score: 0</div>
+
+<div id="controls">
+<button class="btn" id="left">⬅️</button>
+<button class="btn" id="right">➡️</button>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
 <script>
-
-// SCENE
 const scene = new THREE.Scene();
 
-// CAMERA
 const camera = new THREE.PerspectiveCamera(
 75,
 window.innerWidth/window.innerHeight,
@@ -26,50 +56,98 @@ window.innerWidth/window.innerHeight,
 1000
 );
 
-// RENDERER
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth,window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// CUBE (PLAYER)
-const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshBasicMaterial({color:0x00e6ff});
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
+// Road
+const roadGeo = new THREE.PlaneGeometry(8,50);
+const roadMat = new THREE.MeshBasicMaterial({color:0x333333});
+const road = new THREE.Mesh(roadGeo,roadMat);
+road.rotation.x = -Math.PI/2;
+scene.add(road);
 
-// GROUND
-const groundGeo = new THREE.PlaneGeometry(10,10);
-const groundMat = new THREE.MeshBasicMaterial({color:0x222222, side:THREE.DoubleSide});
-const ground = new THREE.Mesh(groundGeo, groundMat);
-ground.rotation.x = Math.PI/2;
-ground.position.y = -1;
-scene.add(ground);
+// Player Car
+const carGeo = new THREE.BoxGeometry(1,0.5,2);
+const carMat = new THREE.MeshBasicMaterial({color:0x00e6ff});
+const car = new THREE.Mesh(carGeo,carMat);
+car.position.y = 0.3;
+car.position.z = 8;
+scene.add(car);
 
-// CAMERA POSITION
-camera.position.z = 5;
-camera.position.y = 2;
+// Obstacle
+const obsGeo = new THREE.BoxGeometry(1,0.5,2);
+const obsMat = new THREE.MeshBasicMaterial({color:0xff0000});
 
-// MOVE CONTROL
-document.addEventListener("keydown",(e)=>{
-if(e.key==="ArrowLeft") cube.position.x -= 0.2;
-if(e.key==="ArrowRight") cube.position.x += 0.2;
-if(e.key==="ArrowUp") cube.position.z -= 0.2;
-if(e.key==="ArrowDown") cube.position.z += 0.2;
+let obstacles=[];
+
+function createObstacle(){
+let o = new THREE.Mesh(obsGeo,obsMat);
+
+o.position.x = (Math.random()*4)-2;
+o.position.y = 0.3;
+o.position.z = -30;
+
+scene.add(o);
+obstacles.push(o);
+}
+
+setInterval(createObstacle,1200);
+
+camera.position.y = 6;
+camera.position.z = 12;
+camera.lookAt(car.position);
+
+let score=0;
+
+function crash(a,b){
+return (
+Math.abs(a.position.x-b.position.x)<1 &&
+Math.abs(a.position.z-b.position.z)<2
+);
+}
+
+// PC Controls
+document.addEventListener("keydown",e=>{
+if(e.key==="ArrowLeft") car.position.x-=0.5;
+if(e.key==="ArrowRight") car.position.x+=0.5;
 });
 
-// LOOP
+// Mobile Controls
+document.getElementById("left").ontouchstart=()=>{
+car.position.x-=0.5;
+};
+
+document.getElementById("right").ontouchstart=()=>{
+car.position.x+=0.5;
+};
+
 function animate(){
 requestAnimationFrame(animate);
 
-// AUTO ROTATE
-cube.rotation.x += 0.01;
-cube.rotation.y += 0.01;
+obstacles.forEach(o=>{
+
+o.position.z += 0.35;
+
+if(o.position.z>12){
+o.position.z=-30;
+o.position.x=(Math.random()*4)-2;
+
+score++;
+document.getElementById("score").innerText=
+"Score: "+score;
+}
+
+if(crash(car,o)){
+alert("Game Over! Score: "+score);
+location.reload();
+}
+});
 
 renderer.render(scene,camera);
 }
 
 animate();
-
 </script>
 
 </body>
