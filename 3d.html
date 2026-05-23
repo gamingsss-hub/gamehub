@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D Game Start</title>
+<style>
+body { margin: 0; overflow: hidden; }
+</style>
+</head>
+
+<body>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+<script>
+
+// SCENE
+const scene = new THREE.Scene();
+
+// CAMERA
+const camera = new THREE.PerspectiveCamera(
+75,
+window.innerWidth/window.innerHeight,
+0.1,
+1000
+);
+
+// RENDERER
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// CUBE (PLAYER)
+const geometry = new THREE.BoxGeometry();
+const material = new THREE.MeshBasicMaterial({color:0x00e6ff});
+const cube = new THREE.Mesh(geometry, material);
+scene.add(cube);
+
+// GROUND
+const groundGeo = new THREE.PlaneGeometry(10,10);
+const groundMat = new THREE.MeshBasicMaterial({color:0x222222, side:THREE.DoubleSide});
+const ground = new THREE.Mesh(groundGeo, groundMat);
+ground.rotation.x = Math.PI/2;
+ground.position.y = -1;
+scene.add(ground);
+
+// CAMERA POSITION
+camera.position.z = 5;
+camera.position.y = 2;
+
+// MOVE CONTROL
+document.addEventListener("keydown",(e)=>{
+if(e.key==="ArrowLeft") cube.position.x -= 0.2;
+if(e.key==="ArrowRight") cube.position.x += 0.2;
+if(e.key==="ArrowUp") cube.position.z -= 0.2;
+if(e.key==="ArrowDown") cube.position.z += 0.2;
+});
+
+// LOOP
+function animate(){
+requestAnimationFrame(animate);
+
+// AUTO ROTATE
+cube.rotation.x += 0.01;
+cube.rotation.y += 0.01;
+
+renderer.render(scene,camera);
+}
+
+animate();
+
+</script>
+
+</body>
+</html>
