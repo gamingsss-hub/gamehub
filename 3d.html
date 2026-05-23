@@ -4,17 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>3D Racing</title>
+
 <style>
-body{margin:0;overflow:hidden;background:black}
+body{
+margin:0;
+overflow:hidden;
+background:black;
+font-family:Arial;
+}
+
 #score{
 position:absolute;
 top:10px;
 left:10px;
 color:white;
 font-size:22px;
-font-family:Arial;
 z-index:10;
 }
+
 #controls{
 position:absolute;
 bottom:20px;
@@ -25,19 +32,50 @@ padding:0 20px;
 box-sizing:border-box;
 z-index:10;
 }
+
 .btn{
 width:80px;
 height:80px;
 font-size:30px;
 border:none;
 border-radius:50%;
-opacity:0.8;
+opacity:0.85;
+}
+
+#gameOver{
+display:none;
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:white;
+color:black;
+padding:20px;
+border-radius:12px;
+text-align:center;
+z-index:1000;
+min-width:220px;
+}
+
+#restartBtn{
+padding:10px 15px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-size:16px;
 }
 </style>
 </head>
+
 <body>
 
 <div id="score">Score: 0</div>
+
+<div id="gameOver">
+<h2>🏁 Game Over</h2>
+<p id="finalScore">Score: 0</p>
+<button id="restartBtn" onclick="location.reload()">🔄 Restart</button>
+</div>
 
 <div id="controls">
 <button class="btn" id="left">⬅️</button>
@@ -47,6 +85,7 @@ opacity:0.8;
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
 <script>
+
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(
@@ -60,28 +99,31 @@ const renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(window.innerWidth,window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// Road
+// ROAD
 const roadGeo = new THREE.PlaneGeometry(8,50);
 const roadMat = new THREE.MeshBasicMaterial({color:0x333333});
 const road = new THREE.Mesh(roadGeo,roadMat);
 road.rotation.x = -Math.PI/2;
 scene.add(road);
 
-// Player Car
+// PLAYER CAR
 const carGeo = new THREE.BoxGeometry(1,0.5,2);
 const carMat = new THREE.MeshBasicMaterial({color:0x00e6ff});
 const car = new THREE.Mesh(carGeo,carMat);
+
 car.position.y = 0.3;
 car.position.z = 8;
+
 scene.add(car);
 
-// Obstacle
+// OBSTACLE CARS
 const obsGeo = new THREE.BoxGeometry(1,0.5,2);
 const obsMat = new THREE.MeshBasicMaterial({color:0xff0000});
 
-let obstacles=[];
+let obstacles = [];
 
 function createObstacle(){
+
 let o = new THREE.Mesh(obsGeo,obsMat);
 
 o.position.x = (Math.random()*4)-2;
@@ -94,60 +136,100 @@ obstacles.push(o);
 
 setInterval(createObstacle,1200);
 
+// CAMERA
 camera.position.y = 6;
 camera.position.z = 12;
 camera.lookAt(car.position);
 
-let score=0;
+let score = 0;
+let gameEnded = false;
 
+// COLLISION
 function crash(a,b){
 return (
-Math.abs(a.position.x-b.position.x)<1 &&
-Math.abs(a.position.z-b.position.z)<2
+Math.abs(a.position.x-b.position.x) < 1 &&
+Math.abs(a.position.z-b.position.z) < 2
 );
 }
 
-// PC Controls
+// PC CONTROLS
 document.addEventListener("keydown",e=>{
-if(e.key==="ArrowLeft") car.position.x-=0.5;
-if(e.key==="ArrowRight") car.position.x+=0.5;
+
+if(gameEnded) return;
+
+if(e.key==="ArrowLeft"){
+car.position.x -= 0.5;
+}
+
+if(e.key==="ArrowRight"){
+car.position.x += 0.5;
+}
+
+// ROAD LIMIT
+if(car.position.x < -3) car.position.x = -3;
+if(car.position.x > 3) car.position.x = 3;
+
 });
 
-// Mobile Controls
-document.getElementById("left").ontouchstart=()=>{
-car.position.x-=0.5;
+// MOBILE CONTROLS
+document.getElementById("left").ontouchstart = ()=>{
+if(gameEnded) return;
+
+car.position.x -= 0.5;
+
+if(car.position.x < -3) car.position.x = -3;
 };
 
-document.getElementById("right").ontouchstart=()=>{
-car.position.x+=0.5;
+document.getElementById("right").ontouchstart = ()=>{
+if(gameEnded) return;
+
+car.position.x += 0.5;
+
+if(car.position.x > 3) car.position.x = 3;
 };
 
+// GAME LOOP
 function animate(){
+
 requestAnimationFrame(animate);
+
+if(!gameEnded){
 
 obstacles.forEach(o=>{
 
 o.position.z += 0.35;
 
-if(o.position.z>12){
-o.position.z=-30;
-o.position.x=(Math.random()*4)-2;
+if(o.position.z > 12){
+
+o.position.z = -30;
+o.position.x = (Math.random()*4)-2;
 
 score++;
-document.getElementById("score").innerText=
-"Score: "+score;
+
+document.getElementById("score").innerText =
+"Score: " + score;
 }
 
 if(crash(car,o)){
-alert("Game Over! Score: "+score);
-location.reload();
+
+gameEnded = true;
+
+document.getElementById("finalScore").innerText =
+"Your Score: " + score;
+
+document.getElementById("gameOver").style.display =
+"block";
 }
+
 });
+
+}
 
 renderer.render(scene,camera);
 }
 
 animate();
+
 </script>
 
 </body>
