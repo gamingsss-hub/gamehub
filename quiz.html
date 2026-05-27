@@ -1,119 +1,646 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quiz Game</title>
+<title>🔥 Ultimate Quiz Game</title>
 
 <style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
 body{
-font-family:Arial;
-background:#111827;
+background:#0f172a;
 color:white;
-text-align:center;
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
 padding:20px;
+overflow-x:hidden;
 }
 
-.box{
-max-width:500px;
-margin:auto;
-background:#1f2937;
-padding:20px;
-border-radius:15px;
+/* BACKGROUND */
+
+body::before{
+content:"";
+position:fixed;
+width:200%;
+height:200%;
+background:
+radial-gradient(circle,#00e6ff22 1px,transparent 1px);
+background-size:40px 40px;
+animation:bgMove 20s linear infinite;
+z-index:-1;
 }
 
-button{
-display:block;
+@keyframes bgMove{
+0%{transform:translate(0,0);}
+100%{transform:translate(-200px,-200px);}
+}
+
+/* QUIZ BOX */
+
+.quiz-box{
 width:100%;
+max-width:800px;
+background:#111827;
+padding:25px;
+border-radius:20px;
+box-shadow:0 0 30px #00e6ff55;
+border:2px solid #00e6ff33;
+animation:fade 1s ease;
+}
+
+@keyframes fade{
+from{
+opacity:0;
+transform:translateY(40px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+h1{
+text-align:center;
+margin-bottom:20px;
+color:#00e6ff;
+text-shadow:0 0 20px #00e6ff;
+}
+
+/* TOP INFO */
+
+.top{
+display:flex;
+justify-content:space-between;
+flex-wrap:wrap;
+gap:10px;
+margin-bottom:20px;
+font-size:18px;
+}
+
+/* TIMER */
+
+.timer{
+color:#facc15;
+font-weight:bold;
+}
+
+/* QUESTION */
+
+#question{
+font-size:28px;
+margin-bottom:20px;
+line-height:1.5;
+}
+
+/* OPTIONS */
+
+.option{
+width:100%;
+padding:15px;
 margin:10px 0;
-padding:12px;
+border:none;
+border-radius:12px;
+background:#1f2937;
+color:white;
 font-size:18px;
 cursor:pointer;
-border:none;
-border-radius:8px;
+transition:0.3s;
+border:2px solid transparent;
+}
+
+.option:hover{
+transform:scale(1.02);
+border-color:#00e6ff;
+box-shadow:0 0 15px #00e6ff66;
 }
 
 .correct{
-background:green;
-color:white;
+background:#16a34a !important;
 }
 
 .wrong{
-background:red;
-color:white;
+background:#dc2626 !important;
 }
+
+/* NEXT BUTTON */
+
+#nextBtn{
+margin-top:15px;
+padding:14px;
+width:100%;
+border:none;
+border-radius:12px;
+background:#00e6ff;
+font-size:18px;
+font-weight:bold;
+cursor:pointer;
+display:none;
+transition:0.3s;
+}
+
+#nextBtn:hover{
+transform:scale(1.02);
+}
+
+/* PROGRESS */
+
+.progress{
+width:100%;
+height:16px;
+background:#1f2937;
+border-radius:20px;
+overflow:hidden;
+margin-bottom:20px;
+}
+
+.progress-bar{
+height:100%;
+width:0%;
+background:linear-gradient(90deg,#00e6ff,#22c55e);
+transition:0.4s;
+}
+
+/* RESULT */
+
+#result{
+display:none;
+text-align:center;
+margin-top:20px;
+}
+
+.answer-box{
+margin-top:20px;
+max-height:300px;
+overflow:auto;
+text-align:left;
+}
+
+.answer-item{
+background:#1f2937;
+padding:12px;
+margin:10px 0;
+border-radius:10px;
+}
+
+/* MOBILE */
+
+@media(max-width:700px){
+
+#question{
+font-size:22px;
+}
+
+.option{
+font-size:16px;
+}
+
+}
+
 </style>
 </head>
+
 <body>
 
-<div class="box">
+<div class="quiz-box">
 
-<h1>🧠 Quiz Game</h1>
+<h1>🧠 Ultimate Quiz Game</h1>
 
-<h2 id="question"></h2>
+<div class="top">
 
-<button onclick="checkAnswer(0)" id="btn0"></button>
-<button onclick="checkAnswer(1)" id="btn1"></button>
-<button onclick="checkAnswer(2)" id="btn2"></button>
-<button onclick="checkAnswer(3)" id="btn3"></button>
+<div>
+⭐ Score:
+<span id="score">0</span>
+</div>
 
-<h3 id="score"></h3>
+<div>
+💰 Coins:
+<span id="coins">0</span>
+</div>
+
+<div class="timer">
+⏳ Time:
+<span id="timer">15</span>
+</div>
 
 </div>
 
+<div class="progress">
+<div class="progress-bar" id="progressBar"></div>
+</div>
+
+<h2 id="question"></h2>
+
+<div id="options"></div>
+
+<button id="nextBtn" onclick="nextQuestion()">
+NEXT QUESTION ➜
+</button>
+
+<div id="result">
+
+<h2>🎉 Quiz Completed!</h2>
+
+<h3 id="finalScore"></h3>
+
+<div class="answer-box" id="answersReview"></div>
+
+<button id="nextBtn"
+style="display:block;margin-top:20px;"
+onclick="restartQuiz()">
+🔄 PLAY AGAIN
+</button>
+
+</div>
+
+</div>
+
+<!-- SOUNDS -->
+
+<audio id="correctSound">
+<source src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3">
+</audio>
+
+<audio id="wrongSound">
+<source src="https://assets.mixkit.co/active_storage/sfx/2221/2221-preview.mp3">
+</audio>
+
 <script>
 
-const quiz=[
+/* QUESTION BANK */
+
+const allQuestions=[];
+
+/* SUBJECTS */
+
+const subjects=[
+
 {
-q:"India ki capital kya hai?",
-a:["Delhi","Mumbai","Chennai","Kolkata"],
-c:0
+name:"Science",
+questions:[
+["What gas do humans breathe in?","Oxygen","Nitrogen","Hydrogen","Carbon Dioxide",0],
+["Which organ pumps blood?","Heart","Brain","Kidney","Liver",0],
+["How many planets are there?","7","8","9","10",1]
+]
 },
+
 {
-q:"2 + 2 = ?",
-a:["3","4","5","6"],
-c:1
+name:"Sports",
+questions:[
+["How many players in cricket team?","9","10","11","12",2],
+["Which sport uses racket?","Football","Tennis","Hockey","Cricket",1],
+["Who is called King of Football?","Messi","Ronaldo","Pele","Neymar",2]
+]
 },
+
 {
-q:"Earth par kitne continents hain?",
-a:["5","6","7","8"],
-c:2
+name:"History",
+questions:[
+["India got independence in?","1945","1946","1947","1948",2],
+["Who discovered America?","Newton","Tesla","Columbus","Einstein",2],
+["First President of India?","Nehru","Rajendra Prasad","Patel","Gandhi",1]
+]
+},
+
+{
+name:"Technology",
+questions:[
+["Who owns Tesla?","Elon Musk","Bill Gates","Steve Jobs","Mark Zuckerberg",0],
+["Android is made by?","Apple","Samsung","Google","Nokia",2],
+["Which company makes iPhone?","Samsung","Apple","Google","Sony",1]
+]
+},
+
+{
+name:"Coding",
+questions:[
+["HTML is used for?","Gaming","Structure","Database","Styling",1],
+["Which language runs in browser?","Python","Java","JavaScript","C++",2],
+["CSS stands for?","Creative Style Sheets","Computer Style Sheets","Cascading Style Sheets","Color Style Sheets",2]
+]
+},
+
+{
+name:"Movies",
+questions:[
+["Who played Iron Man?","Chris Evans","Tom Holland","Robert Downey Jr","Thor",2],
+["Avatar movie has?","Aliens","Cars","Dinosaurs","Robots",0],
+["Marvel is famous for?","Comedy","Superheroes","Horror","Anime",1]
+]
+},
+
+{
+name:"Geography",
+questions:[
+["Largest ocean?","Indian","Atlantic","Pacific","Arctic",2],
+["Capital of Japan?","Tokyo","Kyoto","Osaka","Nagoya",0],
+["Mount Everest is in?","India","Nepal","China","Bhutan",1]
+]
 }
+
 ];
+
+/* GENERATE 500 QUESTIONS */
+
+for(let i=0;i<500;i++){
+
+let subject=
+subjects[
+Math.floor(
+Math.random()*subjects.length
+)
+];
+
+let q=
+subject.questions[
+Math.floor(
+Math.random()*subject.questions.length
+)
+];
+
+allQuestions.push({
+
+q:q[0],
+
+o:[
+q[1],
+q[2],
+q[3],
+q[4]
+],
+
+a:q[5]
+
+});
+
+}
+
+/* RANDOM QUESTIONS */
+
+allQuestions.sort(()=>Math.random()-0.5);
+
+let quiz=allQuestions.slice(0,50);
+
+/* VARIABLES */
 
 let current=0;
 let score=0;
+let coins=0;
+let timer=15;
+let interval;
+
+let review=[];
+
+/* LOAD QUESTION */
 
 function loadQuestion(){
 
-document.getElementById("question").innerText=
-quiz[current].q;
+clearInterval(interval);
 
-for(let i=0;i<4;i++){
-document.getElementById("btn"+i).innerText=
-quiz[current].a[i];
+timer=15;
+
+document
+.getElementById("timer")
+.innerText=timer;
+
+interval=setInterval(()=>{
+
+timer--;
+
+document
+.getElementById("timer")
+.innerText=timer;
+
+if(timer<=0){
+
+clearInterval(interval);
+
+timeOver();
+
 }
 
+},1000);
+
+let q=quiz[current];
+
+document
+.getElementById("question")
+.innerText=
+`Q${current+1}. ${q.q}`;
+
+document
+.getElementById("options")
+.innerHTML="";
+
+q.o.forEach((opt,index)=>{
+
+let btn=
+document.createElement("button");
+
+btn.className="option";
+
+btn.innerText=opt;
+
+btn.onclick=()=>checkAnswer(index);
+
+document
+.getElementById("options")
+.appendChild(btn);
+
+});
+
+document
+.getElementById("nextBtn")
+.style.display="none";
+
+updateProgress();
+
 }
+
+/* CHECK ANSWER */
 
 function checkAnswer(index){
 
-if(index===quiz[current].c){
+clearInterval(interval);
+
+let q=quiz[current];
+
+let buttons=
+document.querySelectorAll(".option");
+
+buttons.forEach(btn=>btn.disabled=true);
+
+if(index===q.a){
+
+buttons[index]
+.classList.add("correct");
+
 score++;
+
+coins+=10;
+
+document
+.getElementById("score")
+.innerText=score;
+
+document
+.getElementById("coins")
+.innerText=coins;
+
+document
+.getElementById("correctSound")
+.play();
+
+review.push(
+`✅ ${q.q}<br>
+Correct: ${q.o[q.a]}`
+);
+
+}else{
+
+buttons[index]
+.classList.add("wrong");
+
+buttons[q.a]
+.classList.add("correct");
+
+document
+.getElementById("wrongSound")
+.play();
+
+review.push(
+`❌ ${q.q}<br>
+Correct: ${q.o[q.a]}`
+);
+
 }
+
+document
+.getElementById("nextBtn")
+.style.display="block";
+
+}
+
+/* TIME OVER */
+
+function timeOver(){
+
+let q=quiz[current];
+
+let buttons=
+document.querySelectorAll(".option");
+
+buttons[q.a]
+.classList.add("correct");
+
+buttons.forEach(btn=>btn.disabled=true);
+
+review.push(
+`⏰ Time Over<br>
+${q.q}<br>
+Correct: ${q.o[q.a]}`
+);
+
+document
+.getElementById("nextBtn")
+.style.display="block";
+
+}
+
+/* NEXT */
+
+function nextQuestion(){
 
 current++;
 
 if(current<quiz.length){
+
 loadQuestion();
-}
-else{
-document.querySelector(".box").innerHTML=
-"<h1>🎉 Quiz Complete!</h1><h2>Score: "+
-score+" / "+quiz.length+"</h2>";
+
+}else{
+
+showResult();
+
 }
 
 }
+
+/* RESULT */
+
+function showResult(){
+
+document
+.getElementById("question")
+.style.display="none";
+
+document
+.getElementById("options")
+.style.display="none";
+
+document
+.getElementById("nextBtn")
+.style.display="none";
+
+document
+.getElementById("result")
+.style.display="block";
+
+document
+.getElementById("finalScore")
+.innerHTML=
+`
+⭐ Score: ${score} / ${quiz.length}
+<br><br>
+💰 Coins Earned: ${coins}
+`;
+
+let html="";
+
+review.forEach(r=>{
+
+html+=`
+<div class="answer-item">
+${r}
+</div>
+`;
+
+});
+
+document
+.getElementById("answersReview")
+.innerHTML=html;
+
+}
+
+/* RESTART */
+
+function restartQuiz(){
+location.reload();
+}
+
+/* PROGRESS */
+
+function updateProgress(){
+
+let progress=
+(current/quiz.length)*100;
+
+document
+.getElementById("progressBar")
+.style.width=
+progress+"%";
+
+}
+
+/* START */
 
 loadQuestion();
 
