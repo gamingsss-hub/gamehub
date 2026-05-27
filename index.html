@@ -165,14 +165,11 @@ to{opacity:1; transform:translateY(0);}
 
 .game-img{
 width:100%;
-height:100px;
+height:120px;
+object-fit:cover;
 border-radius:10px;
-background:#0f172a;
 margin-bottom:10px;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:30px;
+display:block;
 }
 
 .card{
@@ -301,14 +298,16 @@ gap:15px;
 padding:15px;
 ">
 
-<div class="card" onclick="openGame('racing.html')">
-
-<img src="images/racing.jpg" class="game-img">
-
-<h3>🏎 Racing Game</h3>
-
-⭐ Trending #3
-
+<div class="card" onclick="openGame('3d.html')" style="
+background:#1f2937;
+padding:20px;
+border-radius:15px;
+cursor:pointer;
+text-align:center;
+">
+🌍 3D Racing
+<br><br>
+🔥 HOT
 </div>
 
 <div class="card" onclick="openGame('survival.html')" style="
@@ -323,14 +322,14 @@ text-align:center;
 🆕 NEW
 </div>
 
-<div class="card" onclick="openGame('racing.html')" style="
-background:#1f2937;
-padding:20px;
-border-radius:15px;
-cursor:pointer;
-text-align:center;
-">
-🏎 Racing
+<div class="card" onclick="openGame('racing.html')">
+
+<img src="./racing.jpg" class="game-img">
+
+<h3>🏎 Racing Game</h3>
+
+⭐ Trending #3
+
 </div>
 
 <div class="card" onclick="openGame('tapgame.html')" style="
