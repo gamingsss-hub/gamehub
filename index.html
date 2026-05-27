@@ -17,594 +17,549 @@ font-family:Arial,sans-serif;
 body{
 background:#0b1020;
 color:white;
+overflow-x:hidden;
+scroll-behavior:smooth;
 }
 
-/* LOGIN */
+/* ANIMATED BACKGROUND */
 
-#login{
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-flex-direction:column;
-background:linear-gradient(135deg,#0b1020,#111827);
+body::before{
+content:"";
+position:fixed;
+width:200%;
+height:200%;
+background:
+radial-gradient(circle,#00e6ff22 1px,transparent 1px);
+background-size:40px 40px;
+animation:bgMove 20s linear infinite;
+z-index:-1;
 }
 
-#login h1{
-color:#00e6ff;
-margin-bottom:20px;
-font-size:40px;
+@keyframes bgMove{
+0%{transform:translate(0,0);}
+100%{transform:translate(-200px,-200px);}
 }
 
-#login input{
-width:280px;
-padding:12px;
-border:none;
-border-radius:10px;
-margin-bottom:10px;
-font-size:16px;
-}
-
-#login button{
-padding:12px 25px;
-border:none;
-border-radius:10px;
-background:#00e6ff;
-font-weight:bold;
-cursor:pointer;
-}
-
-/* HUB */
-
-#hub{
-display:none;
-}
+/* TOPBAR */
 
 .topbar{
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:15px;
-background:#111827;
+padding:15px 20px;
+background:rgba(17,24,39,0.9);
+backdrop-filter:blur(10px);
+box-shadow:0 0 20px rgba(0,230,255,0.3);
 position:sticky;
 top:0;
 z-index:100;
 }
 
 .logo{
-font-size:24px;
+font-size:30px;
 font-weight:bold;
 color:#00e6ff;
-}
-.card{
-background:#1f2937;
-padding:20px;
-border-radius:15px;
-cursor:pointer;
-text-align:center;
-transition:0.3s;
-border:1px solid rgba(255,255,255,0.1);
-}
-
-.card:hover{
-transform:translateY(-8px) scale(1.03);
-box-shadow:0 0 20px #00e6ff;
-border-color:#00e6ff;
-}
-
-.section-title{
-padding:20px;
-font-size:24px;
-color:#00e6ff;
-}
-
-.trending{
-display:flex;
-overflow-x:auto;
-gap:15px;
-padding:15px;
-}
-
-.trending .card{
-min-width:180px;
-}
-
-.hero{
-animation: glow 3s infinite alternate;
+text-shadow:0 0 15px #00e6ff;
+animation:glow 2s infinite alternate;
 }
 
 @keyframes glow{
 from{
-box-shadow:0 0 10px #00e6ff;
+text-shadow:0 0 10px #00e6ff;
 }
 to{
-box-shadow:0 0 30px #00e6ff;
+text-shadow:0 0 25px #00e6ff;
 }
 }
 
-.logo{
+/* HERO */
+
+.hero{
+padding:70px 20px;
+text-align:center;
+background:linear-gradient(135deg,#00e6ff,#6d28d9);
+animation:fadeIn 1s ease;
+}
+
+.hero h1{
+font-size:45px;
+margin-bottom:15px;
+animation:slideDown 1s ease;
+}
+
+.hero p{
+font-size:20px;
+margin-bottom:25px;
+}
+
+@keyframes slideDown{
+from{
+opacity:0;
+transform:translateY(-50px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+@keyframes fadeIn{
+from{
+opacity:0;
+}
+to{
+opacity:1;
+}
+}
+
+/* SEARCH */
+
+.search-box{
+padding:14px;
+width:300px;
+border:none;
+border-radius:30px;
+font-size:16px;
+outline:none;
+box-shadow:0 0 15px rgba(0,0,0,0.3);
+transition:0.3s;
+}
+
+.search-box:focus{
+transform:scale(1.05);
+box-shadow:0 0 20px #00e6ff;
+}
+
+/* BUTTON */
+
+.reward-btn{
+margin-top:20px;
+padding:14px 25px;
+border:none;
+border-radius:30px;
+background:#111827;
+color:white;
+font-weight:bold;
+cursor:pointer;
+transition:0.3s;
+font-size:16px;
+}
+
+.reward-btn:hover{
+background:black;
+transform:scale(1.08);
+box-shadow:0 0 20px #00e6ff;
+}
+
+.coin-box{
+margin-top:20px;
+font-size:24px;
+font-weight:bold;
+}
+
+/* GAMES */
+
+.section-title{
+padding:30px 20px 10px;
+font-size:32px;
+color:#00e6ff;
 text-shadow:0 0 10px #00e6ff;
 }
 
-.topbar{
-box-shadow:0 0 15px rgba(0,230,255,0.3);
+.games{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+gap:25px;
+padding:25px;
 }
 
 .card{
 background:#1f2937;
-transition:0.3s;
+border-radius:20px;
+overflow:hidden;
+cursor:pointer;
+transition:0.4s;
+border:1px solid rgba(255,255,255,0.1);
+position:relative;
+animation:cardFade 1s ease;
+}
+
+@keyframes cardFade{
+from{
+opacity:0;
+transform:translateY(40px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
 }
 
 .card:hover{
-transform:translateY(-8px) scale(1.05);
-box-shadow:0 0 25px #00e6ff;
+transform:translateY(-12px) scale(1.04);
+box-shadow:0 0 30px #00e6ff;
+border-color:#00e6ff;
 }
 
-.card{
-transition:0.3s ease;
+.card::before{
+content:"";
+position:absolute;
+top:0;
+left:-100%;
+width:100%;
+height:100%;
+background:linear-gradient(
+90deg,
+transparent,
+rgba(255,255,255,0.2),
+transparent
+);
+transition:0.5s;
 }
 
-.card:hover{
-transform:translateY(-10px) scale(1.05);
-box-shadow:0 0 25px #00e6ff;
-}
-
-body{
-scroll-behavior:smooth;
-}
-
-/* smooth fade in */
-#hub{
-animation:fadeIn 0.8s ease;
-}
-
-@keyframes fadeIn{
-from{opacity:0; transform:translateY(20px);}
-to{opacity:1; transform:translateY(0);}
+.card:hover::before{
+left:100%;
 }
 
 .game-img{
 width:100%;
-height:120px;
+height:180px;
 object-fit:cover;
-border-radius:10px;
-margin-bottom:10px;
 display:block;
 }
 
-.card{
-overflow:hidden;
+.card-content{
+padding:18px;
+text-align:center;
 }
+
+.card-content h3{
+margin-bottom:12px;
+font-size:24px;
+}
+
+.tag{
+display:inline-block;
+padding:7px 14px;
+background:#00e6ff;
+color:black;
+border-radius:25px;
+font-size:14px;
+font-weight:bold;
+}
+
+/* FOOTER */
+
+.footer{
+text-align:center;
+padding:25px;
+color:#aaa;
+font-size:16px;
+}
+
+/* FLOATING ICON */
+
+.float-icon{
+position:fixed;
+bottom:20px;
+right:20px;
+background:#00e6ff;
+width:60px;
+height:60px;
+border-radius:50%;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:28px;
+box-shadow:0 0 20px #00e6ff;
+animation:bounce 2s infinite;
+cursor:pointer;
+}
+
+@keyframes bounce{
+0%,100%{
+transform:translateY(0);
+}
+50%{
+transform:translateY(-10px);
+}
+}
+
 </style>
 </head>
 
 <body>
-<!-- LOGIN SCREEN -->
 
-<div id="login">
+<!-- AUDIO -->
 
-<h1>🎮 Game Hub Ultra</h1>
+<audio id="clickSound">
+<source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
+</audio>
 
-<input id="name" placeholder="Enter Your Name">
-
-<button onclick="start()">🚀 Start Playing</button>
-
-</div>
-
-<!-- MAIN HUB -->
-
-<div id="hub">
+<!-- TOPBAR -->
 
 <div class="topbar">
 
-<div class="logo">🎮 Game Hub Ultra</div>
+<div class="logo">
+🎮 Game Hub Ultra
+</div>
 
 <div>
-👤 <span id="user"></span>
-&nbsp;&nbsp;
-💰 Coins: <span id="coins">0</span>
+🔥 Trending Games
 </div>
 
 </div>
 
-<!-- HERO SECTION -->
+<!-- HERO -->
 
-<div style="
-padding:40px 20px;
-text-align:center;
-background:linear-gradient(135deg,#00e6ff,#6d28d9);
-">
+<div class="hero">
 
 <h1>🔥 Welcome To Game Hub Ultra</h1>
 
-<p style="margin-top:10px;">
-Play Racing, Survival, Quiz, Snake, 3D & More Games
+<p>
+Play Racing, Survival, Quiz, Snake & More Games
 </p>
+
+<input
+type="text"
+id="search"
+class="search-box"
+placeholder="🔍 Search Games..."
+onkeyup="searchGames()"
+>
 
 <br>
 
-<input
-id="search"
-placeholder="🔍 Search Games..."
-onkeyup="searchGames()"
-style="
-padding:12px;
-width:280px;
-border:none;
-border-radius:20px;
-"
->
-
-<br><br>
-
-<button onclick="dailyReward()">
+<button class="reward-btn" onclick="dailyReward()">
 🎁 Daily Reward (+50 Coins)
 </button>
 
-</div>
-
-<!-- FEATURED -->
-<!-- PROFILE CARD -->
-
-<div style="
-margin:15px;
-padding:20px;
-background:#1f2937;
-border-radius:15px;
-text-align:center;
-">
-
-<div style="font-size:60px;">👤</div>
-
-<h2 id="profileName">Player</h2>
-
-<p>🎮 Welcome Back To Game Hub Ultra</p>
-
-<br>
-
-<div>
-💰 Coins: <span id="profileCoins">0</span>
+<div class="coin-box">
+💰 Coins:
+<span id="coins">0</span>
 </div>
 
 </div>
 
-<!-- RECENTLY PLAYED -->
+<!-- GAMES -->
 
-<h2 class="section-title">🕒 Recently Played</h2>
+<h2 class="section-title">🏆 Featured Games</h2>
 
-<div class="trending">
+<div class="games">
 
-<div class="card">
-🌍 3D Racing
-</div>
-
-<div class="card">
-🧍 Survival
-</div>
-
-<div class="card">
-🏎 Racing
-</div>
-
-</div>
-
-<h2 style="padding:20px;">
-⭐ Featured Games
-</h2>
-<div id="games" style="
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
-gap:15px;
-padding:15px;
-">
-
-<div class="card" onclick="openGame('3d.html')" style="
-background:#1f2937;
-padding:20px;
-border-radius:15px;
-cursor:pointer;
-text-align:center;
-">
-🌍 3D Racing
-<br><br>
-🔥 HOT
-</div>
-
-<div class="card" onclick="openGame('survival.html')" style="
-background:#1f2937;
-padding:20px;
-border-radius:15px;
-cursor:pointer;
-text-align:center;
-">
-🧍 Survival
-<br><br>
-🆕 NEW
-</div>
+<!-- RACING -->
 
 <div class="card" onclick="openGame('racing.html')">
 
-<img src="./racing.jpg" class="game-img">
+<img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1200&auto=format&fit=crop" class="game-img">
+
+<div class="card-content">
 
 <h3>🏎 Racing Game</h3>
 
-⭐ Trending #3
-
-</div>
-
-<div class="card" onclick="openGame('tapgame.html')" style="
-background:#1f2937;
-padding:20px;
-border-radius:15px;
-cursor:pointer;
-text-align:center;
-">
-🎯 Tap Game
-</div>
-
-<div class="card" onclick="openGame('quiz.html')" style="
-background:#1f2937;
-padding:20px;
-border-radius:15px;
-cursor:pointer;
-text-align:center;
-">
-🧠 Quiz Game
-</div>
-
-<div class="card" onclick="openGame('snakegame.html')" style="
-background:#1f2937;
-padding:20px;
-border-radius:15px;
-cursor:pointer;
-text-align:center;
-">
-🐍 Snake Game
-</div>
-
-<div class="card" onclick="openGame('tictactoe.html')" style="
-background:#1f2937;
-padding:20px;
-border-radius:15px;
-cursor:pointer;
-text-align:center;
-">
-❌⭕ Tic Tac Toe
-</div>
-
-</div>
-
-</div>  <!-- Games Grid End -->
-
-<!-- TRENDING GAMES START -->
-
-<h2 class="section-title">🔥 Trending Games</h2>
-
-<div class="trending">
-
-<div class="card" onclick="openGame('3d.html')">
-
-<div class="game-img">🏎</div>
-
-🌍 3D Racing<br>
-🔥 Best 3D Game
-
-</div>
-
-<div class="card" onclick="openGame('survival.html')">
-
-<div class="game-img">🧍</div>
-
-Survival Game<br>
-⚡ Try Now
-
-</div>
-
-<div class="card" onclick="openGame('racing.html')">
-
-<div class="game-img">🏁</div>
-
-Racing Game<br>
-🏆 Fast Speed
-
-</div>
-
-</div>
-
-
-<div class="card" onclick="openGame('3d.html')">
-🌍 3D Racing
-<br><br>
+<div class="tag">
 ⭐ Trending #1
 </div>
 
+</div>
+
+</div>
+
+<!-- SURVIVAL -->
+
 <div class="card" onclick="openGame('survival.html')">
-🧍 Survival
-<br><br>
-⭐ Trending #2
+
+<img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop" class="game-img">
+
+<div class="card-content">
+
+<h3>🧍 Survival Game</h3>
+
+<div class="tag">
+🔥 HOT
 </div>
-
-<div class="card" onclick="openGame('racing.html')">
-🏎 Racing
-<br><br>
-⭐ Trending #3
-</div>
-
-</div>
-
-<!-- TRENDING GAMES END -->
-
-<h2 class="section-title">🎮 Categories</h2>
-
-<div class="trending">
-
-<div class="card" onclick="filterGame('racing')">🏎 Racing</div>
-
-<div class="card" onclick="filterGame('survival')">🧍 Survival</div>
-
-<div class="card" onclick="filterGame('quiz')">🧠 Quiz</div>
-
-<div class="card" onclick="filterGame('3d')">🌍 3D Games</div>
-
-<div class="card" onclick="filterGame('all')">🎮 All Games</div>
 
 </div>
 
-<h2 style="padding:20px;">
-🏆 Leaderboard
-</h2>
-
-<div style="
-margin:15px;
-padding:20px;
-background:#1f2937;
-border-radius:15px;
-">
-🥇 Player 1 - 500 Coins<br><br>
-🥈 Player 2 - 300 Coins<br><br>
-🥉 Player 3 - 150 Coins
 </div>
+
+<!-- QUIZ -->
+
+<div class="card" onclick="openGame('quiz.html')">
+
+<img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop" class="game-img">
+
+<div class="card-content">
+
+<h3>🧠 Quiz Game</h3>
+
+<div class="tag">
+🆕 NEW
+</div>
+
+</div>
+
+</div>
+
+<!-- SNAKE -->
+
+<div class="card" onclick="openGame('snakegame.html')">
+
+<img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop" class="game-img">
+
+<div class="card-content">
+
+<h3>🐍 Snake Game</h3>
+
+<div class="tag">
+🎮 Classic
+</div>
+
+</div>
+
+</div>
+
+<!-- TIC TAC TOE -->
+
+<div class="card" onclick="openGame('tictactoe.html')">
+
+<img src="https://images.unsplash.com/photo-1523875194681-bedd468c58bf?q=80&w=1200&auto=format&fit=crop" class="game-img">
+
+<div class="card-content">
+
+<h3>❌⭕ Tic Tac Toe</h3>
+
+<div class="tag">
+🔥 Multiplayer
+</div>
+
+</div>
+
+</div>
+
+<!-- BOXING GAME ADDED -->
+
+<div class="card" onclick="openGame('boxing.html')">
+
+<img src="https://images.unsplash.com/photo-1517438476312-10d79c077509?q=80&w=1200&auto=format&fit=crop" class="game-img">
+
+<div class="card-content">
+
+<h3>🥊 Shadow Fighter</h3>
+
+<div class="tag">
+💀 HARD MODE
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- FOOTER -->
+
+<div class="footer">
+Made With ❤️ By Yash
+</div>
+
+<!-- FLOATING BUTTON -->
+
+<div class="float-icon" onclick="scrollToTop()">
+🚀
 </div>
 
 <script>
 
-let user="";
-let coins=0;
-
-// LOGIN
-
-function start(){
-
-user=document.getElementById("name").value;
-
-if(user===""){
-alert("Enter your name");
-return;
-}
-
-localStorage.setItem("user",user);
-
-coins=parseInt(localStorage.getItem(user+"_coins"))||0;
-
-document.getElementById("user").innerText=user;
-document.getElementById("coins").innerText=coins;
-
-document.getElementById("profileName").innerText=user;
-document.getElementById("profileCoins").innerText=coins;
-
-document.getElementById("login").style.display="none";
-document.getElementById("hub").style.display="block";
-}
-
-// OPEN GAME
+/* OPEN GAME */
 
 function openGame(file){
+
+document.getElementById("clickSound").play();
+
+setTimeout(()=>{
 window.location.href=file;
+},200);
+
 }
 
-// DAILY REWARD
+/* COINS */
+
+let coins =
+parseInt(localStorage.getItem("coins")) || 0;
+
+document.getElementById("coins").innerText =
+coins;
+
+/* DAILY REWARD */
 
 function dailyReward(){
 
-let lastReward=
-localStorage.getItem(user+"_reward");
+let lastReward =
+localStorage.getItem("lastReward");
 
-let now=Date.now();
+let now = Date.now();
 
-if(lastReward && now-lastReward<86400000){
+if(lastReward && now - lastReward < 86400000){
 
-alert("⏰ Daily reward already claimed!");
-
+alert("⏰ Reward already claimed today!");
 return;
+
 }
 
-coins+=50;
+coins += 50;
 
-localStorage.setItem(user+"_coins",coins);
+localStorage.setItem("coins", coins);
 
-localStorage.setItem(user+"_reward",now);
+localStorage.setItem("lastReward", now);
 
-document.getElementById("coins").innerText=coins;
-
-document.getElementById("profileCoins").innerText=coins;
+document.getElementById("coins").innerText =
+coins;
 
 alert("🎉 +50 Coins Added!");
+
 }
 
-// SEARCH
+/* SEARCH */
 
 function searchGames(){
 
-let input=document
-.getElementById("search")
+let input =
+document.getElementById("search")
 .value
 .toLowerCase();
 
-let cards=document
-.querySelectorAll(".card");
+let cards =
+document.querySelectorAll(".card");
 
 cards.forEach(card=>{
 
-let text=card.innerText.toLowerCase();
+let text =
+card.innerText.toLowerCase();
 
 if(text.includes(input)){
+
 card.style.display="block";
+
 }else{
+
 card.style.display="none";
+
 }
 
 });
 
 }
 
-// AUTO LOGIN
+/* SCROLL TOP */
 
-window.onload=function(){
-
-let saved=localStorage.getItem("user");
-
-if(saved){
-
-user=saved;
-
-coins=parseInt(
-localStorage.getItem(user+"_coins")
-)||0;
-
-document.getElementById("user").innerText=user;
-document.getElementById("coins").innerText=coins;
-
-document.getElementById("profileName").innerText=user;
-document.getElementById("profileCoins").innerText=coins;
-
-document.getElementById("login").style.display="none";
-document.getElementById("hub").style.display="block";
-
-}
-
-}
-
-function filterGame(type){
-
-let cards = document.querySelectorAll(".card");
-
-cards.forEach(card=>{
-
-let text = card.innerText.toLowerCase();
-
-if(type === "all"){
-card.style.display = "block";
-}
-else if(text.includes(type)){
-card.style.display = "block";
-}
-else{
-card.style.display = "none";
-}
-
+function scrollToTop(){
+window.scrollTo({
+top:0,
+behavior:"smooth"
 });
-
 }
+
 </script>
 
 </body>
