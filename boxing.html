@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+<title>🥊 Shadow Fighter Ultimate</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+html,body{
+width:100%;
+height:100%;
+overflow:hidden;
+background:black;
+touch-action:none;
+user-select:none;
+}
+
+body{
+display:flex;
+flex-direction:column;
+align-items:center;
+color:white;
+}
+
+/* BACKGROUND */
+
+body::before{
+content:"";
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:
+radial-gradient(circle,
+rgba(0,230,255,0.15),
+transparent 70%);
+z-index:-1;
+animation:bg 5s infinite alternate;
+}
+
+@keyframes bg{
+from{transform:scale(1);}
+to{transform:scale(1.15);}
+}
+
+/* TITLE */
+
+h1{
+margin-top:8px;
+color:#00e6ff;
+text-shadow:0 0 20px #00e6ff;
+}
+
+/* UI */
+
+.top-ui{
+width:95%;
+max-width:1000px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin:10px 0;
+flex-wrap:wrap;
+gap:10px;
+}
+
+.level{
+font-size:22px;
+color:#00e6ff;
+}
+
+.health-wrap{
+display:flex;
+gap:15px;
+flex-wrap:wrap;
+}
+
+.health-box{
+width:220px;
+}
+
+.health-text{
+margin-bottom:4px;
+font-size:14px;
+}
+
+.health{
+width:100%;
+height:22px;
+background:#222;
+border:2px solid #00e6ff;
+border-radius:20px;
+overflow:hidden;
+}
+
+.bar{
+height:100%;
+width:100%;
+background:lime;
+transition:0.2s;
+}
+
+/* CANVAS */
+
+canvas{
+background:linear-gradient(#111,#222);
+border:4px solid #00e6ff;
+border-radius:15px;
+box-shadow:0 0 25px #00e6ff;
+width:95%;
+max-width:1000px;
+height:auto;
+}
+
+/* CONTROLS */
+
+.controls{
+margin-top:12px;
+display:flex;
+gap:12px;
+flex-wrap:wrap;
+justify-content:center;
+padding-bottom:20px;
+}
+
+.control-btn{
+width:75px;
+height:75px;
+border-radius:50%;
+border:none;
+font-size:28px;
+background:#111;
+color:white;
+border:3px solid #00e6ff;
+box-shadow:0 0 15px #00e6ff;
+touch-action:none;
+}
+
+.control-btn:active{
+transform:scale(0.9);
+}
+
+/* SCORE */
+
+.score{
+font-size:22px;
+margin-top:10px;
+color:#00e6ff;
+}
+
+/* GAME OVER */
+
+#gameOver{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+display:none;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+background:rgba(0,0,0,0.92);
+z-index:999;
+}
+
+#gameOver h2{
+font-size:45px;
+color:red;
+text-shadow:0 0 20px red;
+}
+
+#gameOver p{
+margin-top:10px;
+font-size:22px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>🥊 Shadow Fighter Ultimate</h1>
+
+<div class="top-ui">
+
+<div class="level">
+🔥 Level:
+<span id="lvl">1</span>
+</div>
+
+<div class="health-wrap">
+
+<div class="health-box">
+<div class="health-text">PLAYER</div>
+<div class="health">
+<div class="bar" id="playerBar"></div>
+</div>
+</div>
+
+<div class="health-box">
+<div class="health-text">ENEMY</div>
+<div class="health">
+<div class="bar" id="enemyBar"></div>
+</div>
+</div>
+
+</div>
+</div>
+
+<canvas id="game" width="1000" height="500"></canvas>
+
+<div class="score">
+🏆 Wins:
+Player <span id="pWins">0</span>
+|
+Enemy <span id="eWins">0</span>
+</div>
+
+<div class="controls">
+
+<button class="control-btn" id="leftBtn">⬅️</button>
+
+<button class="control-btn" id="jumpBtn">⬆️</button>
+
+<button class="control-btn" id="attackBtn">👊</button>
+
+<button class="control-btn" id="rightBtn">➡️</button>
+
+</div>
+
+<div id="gameOver">
+<h2>💀 GAME OVER</h2>
+<p>Restarting...</p>
+</div>
+
+<!-- SOUNDS -->
+
+<audio id="hitSound">
+<source src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3">
+</audio>
+
+<audio id="jumpSound">
+<source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3">
+</audio>
+
+<audio id="winSound">
+<source src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3">
+</audio>
+
+<script>
+
+const canvas=
+document.getElementById("game");
+
+const ctx=
+canvas.getContext("2d");
+
+/* PLAYER */
+
+let player={
+
+x:100,
+y:330,
+
+w:70,
+h:100,
+
+hp:100,
+
+dy:0,
+
+jump:false,
+
+speed:6,
+
+color:"cyan"
+
+};
+
+/* ENEMY */
+
+let enemy={
+
+x:820,
+y:330,
+
+w:70,
+h:100,
+
+hp:100,
+
+speed:2,
+
+color:"red"
+
+};
+
+const ground=330;
+
+let level=1;
+
+let pWins=0;
+let eWins=0;
+
+let moveLeft=false;
+let moveRight=false;
+
+let gameOver=false;
+
+let keys={};
+
+/* SOUND SAFE */
+
+function playSound(id){
+
+const s=
+document.getElementById(id);
+
+s.currentTime=0;
+
+s.play().catch(()=>{});
+
+}
+
+/* KEYBOARD */
+
+document.addEventListener(
+"keydown",e=>{
+
+if(e.key===" "){
+e.preventDefault();
+attack();
+}
+
+keys[e.key]=true;
+
+if(
+e.key==="ArrowUp"||
+e.key==="w"
+){
+jump();
+}
+
+});
+
+document.addEventListener(
+"keyup",e=>{
+
+keys[e.key]=false;
+
+});
+
+/* MOBILE BUTTONS */
+
+const leftBtn=
+document.getElementById("leftBtn");
+
+const rightBtn=
+document.getElementById("rightBtn");
+
+leftBtn.addEventListener(
+"touchstart",e=>{
+e.preventDefault();
+moveLeft=true;
+});
+
+leftBtn.addEventListener(
+"touchend",()=>{
+moveLeft=false;
+});
+
+rightBtn.addEventListener(
+"touchstart",e=>{
+e.preventDefault();
+moveRight=true;
+});
+
+rightBtn.addEventListener(
+"touchend",()=>{
+moveRight=false;
+});
+
+document
+.getElementById("jumpBtn")
+.addEventListener(
+"touchstart",e=>{
+e.preventDefault();
+jump();
+});
+
+document
+.getElementById("attackBtn")
+.addEventListener(
+"touchstart",e=>{
+e.preventDefault();
+attack();
+});
+
+/* DRAW */
+
+function draw(f){
+
+ctx.fillStyle=f.color;
+
+ctx.fillRect(
+f.x,
+f.y,
+f.w,
+f.h
+);
+
+/* eyes */
+
+ctx.fillStyle="white";
+
+ctx.fillRect(
+f.x+15,
+f.y+20,
+10,
+10
+);
+
+ctx.fillRect(
+f.x+45,
+f.y+20,
+10,
+10
+);
+
+}
+
+/* JUMP */
+
+function jump(){
+
+if(
+!player.jump &&
+!gameOver
+){
+
+player.dy=-16;
+
+player.jump=true;
+
+playSound("jumpSound");
+
+}
+
+}
+
+/* ATTACK */
+
+function attack(){
+
+if(gameOver) return;
+
+if(
+player.x+110>enemy.x &&
+player.x<enemy.x+enemy.w
+){
+
+enemy.hp-=10;
+
+enemy.x+=25;
+
+playSound("hitSound");
+
+/* critical hit */
+
+if(Math.random()<0.2){
+
+enemy.hp-=15;
+
+}
+
+/* enemy dead */
+
+if(enemy.hp<=0){
+
+playSound("winSound");
+
+pWins++;
+
+level++;
+
+enemy.speed+=0.5;
+
+document
+.getElementById("pWins")
+.innerText=pWins;
+
+document
+.getElementById("lvl")
+.innerText=level;
+
+resetRound();
+
+}
+
+}
+
+}
+
+/* HARD AI */
+
+function enemyAI(){
+
+if(gameOver) return;
+
+/* harder each level */
+
+let aiSpeed=
+enemy.speed+
+(level*0.2);
+
+if(
+enemy.x>
+player.x+70
+){
+
+enemy.x-=aiSpeed;
+
+}
+
+/* attack */
+
+if(
+enemy.x<
+player.x+80 &&
+enemy.x+enemy.w>
+player.x
+){
+
+player.hp-=
+0.25+(level*0.05);
+
+player.x-=2;
+
+/* heavy attack */
+
+if(Math.random()<0.01){
+
+player.hp-=10;
+
+shake();
+
+}
+
+}
+
+/* random jump */
+
+if(
+Math.random()<0.005 &&
+enemy.y>=ground
+){
+
+enemy.dy=-12;
+
+}
+
+}
+
+/* SHAKE */
+
+function shake(){
+
+canvas.style.transform=
+`translate(
+${Math.random()*10-5}px,
+${Math.random()*10-5}px
+)`;
+
+setTimeout(()=>{
+
+canvas.style.transform=
+"translate(0,0)";
+
+},60);
+
+}
+
+/* RESET ROUND */
+
+function resetRound(){
+
+player.x=100;
+enemy.x=820;
+
+player.hp=100;
+enemy.hp=100;
+
+}
+
+/* GAME OVER */
+
+function showGameOver(){
+
+gameOver=true;
+
+document
+.getElementById("gameOver")
+.style.display="flex";
+
+setTimeout(()=>{
+
+restartGame();
+
+},2500);
+
+}
+
+/* RESTART */
+
+function restartGame(){
+
+gameOver=false;
+
+document
+.getElementById("gameOver")
+.style.display="none";
+
+level=1;
+
+enemy.speed=2;
+
+pWins=0;
+eWins=0;
+
+document
+.getElementById("lvl")
+.innerText=1;
+
+document
+.getElementById("pWins")
+.innerText=0;
+
+document
+.getElementById("eWins")
+.innerText=0;
+
+resetRound();
+
+requestAnimationFrame(update);
+
+}
+
+/* UPDATE */
+
+function update(){
+
+if(gameOver) return;
+
+ctx.clearRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+/* ground */
+
+ctx.fillStyle="#333";
+
+ctx.fillRect(
+0,
+430,
+1000,
+70
+);
+
+/* movement */
+
+if(
+keys["a"]||
+keys["ArrowLeft"]||
+moveLeft
+){
+
+player.x-=player.speed;
+
+}
+
+if(
+keys["d"]||
+keys["ArrowRight"]||
+moveRight
+){
+
+player.x+=player.speed;
+
+}
+
+/* limit */
+
+if(player.x<0){
+player.x=0;
+}
+
+if(
+player.x>
+canvas.width-player.w
+){
+
+player.x=
+canvas.width-player.w;
+
+}
+
+/* gravity */
+
+player.y+=player.dy;
+
+player.dy+=0.8;
+
+if(player.y>=ground){
+
+player.y=ground;
+
+player.dy=0;
+
+player.jump=false;
+
+}
+
+/* enemy gravity */
+
+if(!enemy.dy){
+enemy.dy=0;
+}
+
+enemy.y+=enemy.dy;
+
+enemy.dy+=0.8;
+
+if(enemy.y>=ground){
+
+enemy.y=ground;
+
+enemy.dy=0;
+
+}
+
+/* AI */
+
+enemyAI();
+
+/* draw */
+
+draw(player);
+
+draw(enemy);
+
+/* health */
+
+document
+.getElementById("playerBar")
+.style.width=
+Math.max(player.hp,0)+"%";
+
+document
+.getElementById("enemyBar")
+.style.width=
+Math.max(enemy.hp,0)+"%";
+
+/* lose */
+
+if(player.hp<=0){
+
+eWins++;
+
+document
+.getElementById("eWins")
+.innerText=eWins;
+
+showGameOver();
+
+return;
+
+}
+
+requestAnimationFrame(update);
+
+}
+
+update();
+
+</script>
+
+</body>
+</html>
