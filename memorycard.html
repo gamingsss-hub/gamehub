@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>🧠 Memory Card Match</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+body{
+background:
+linear-gradient(135deg,#0f172a,#111827);
+color:white;
+min-height:100vh;
+display:flex;
+flex-direction:column;
+align-items:center;
+padding:20px;
+overflow-x:hidden;
+}
+
+/* TITLE */
+
+h1{
+margin:15px;
+font-size:42px;
+color:#00e6ff;
+text-shadow:0 0 20px #00e6ff;
+}
+
+/* HUD */
+
+.hud{
+display:flex;
+gap:15px;
+flex-wrap:wrap;
+justify-content:center;
+margin-bottom:20px;
+}
+
+.box{
+background:#111827;
+padding:12px 20px;
+border-radius:14px;
+border:2px solid #00e6ff;
+box-shadow:0 0 15px #00e6ff;
+font-weight:bold;
+font-size:18px;
+}
+
+/* GAME BOARD */
+
+.game-board{
+display:grid;
+grid-template-columns:
+repeat(4,90px);
+gap:15px;
+justify-content:center;
+}
+
+/* CARD */
+
+.card{
+width:90px;
+height:90px;
+border-radius:15px;
+cursor:pointer;
+position:relative;
+transform-style:preserve-3d;
+transition:0.5s;
+}
+
+.card.flip{
+transform:rotateY(180deg);
+}
+
+.front,
+.back{
+position:absolute;
+width:100%;
+height:100%;
+border-radius:15px;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:40px;
+backface-visibility:hidden;
+}
+
+/* FRONT */
+
+.front{
+background:#00e6ff;
+color:black;
+font-size:35px;
+font-weight:bold;
+}
+
+/* BACK */
+
+.back{
+background:#1f2937;
+border:3px solid #00e6ff;
+transform:rotateY(180deg);
+box-shadow:0 0 15px #00e6ff;
+}
+
+/* BUTTON */
+
+button{
+margin-top:25px;
+padding:14px 28px;
+border:none;
+border-radius:14px;
+background:#00e6ff;
+font-size:20px;
+font-weight:bold;
+cursor:pointer;
+box-shadow:0 0 15px #00e6ff;
+}
+
+/* WIN SCREEN */
+
+#winScreen{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.92);
+display:none;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+z-index:100;
+}
+
+#winScreen h2{
+font-size:55px;
+color:#00ff88;
+text-shadow:0 0 20px #00ff88;
+margin-bottom:20px;
+}
+
+/* MOBILE */
+
+@media(max-width:600px){
+
+.game-board{
+grid-template-columns:
+repeat(4,70px);
+gap:10px;
+}
+
+.card{
+width:70px;
+height:70px;
+}
+
+.front,
+.back{
+font-size:28px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>🧠 Memory Match</h1>
+
+<!-- HUD -->
+
+<div class="hud">
+
+<div class="box">
+⏱ Time:
+<span id="timer">0</span>s
+</div>
+
+<div class="box">
+🎯 Moves:
+<span id="moves">0</span>
+</div>
+
+<div class="box">
+✅ Pairs:
+<span id="pairs">0</span>/8
+</div>
+
+</div>
+
+<!-- GAME -->
+
+<div class="game-board"
+id="board"></div>
+
+<button onclick="restartGame()">
+🔄 Restart
+</button>
+
+<!-- WIN -->
+
+<div id="winScreen">
+
+<h2>🎉 YOU WIN!</h2>
+
+<h3 id="finalStats"></h3>
+
+<button onclick="restartGame()">
+Play Again 🔥
+</button>
+
+</div>
+
+<!-- SOUNDS -->
+
+<audio id="flipSound">
+<source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3">
+</audio>
+
+<audio id="matchSound">
+<source src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3">
+</audio>
+
+<audio id="wrongSound">
+<source src="https://assets.mixkit.co/active_storage/sfx/209/209-preview.mp3">
+</audio>
+
+<script>
+
+/* EMOJIS */
+
+const emojis=[
+
+"🚗","🚗",
+"🔥","🔥",
+"⚡","⚡",
+"💎","💎",
+"👑","👑",
+"🎮","🎮",
+"🚀","🚀",
+"🧠","🧠"
+
+];
+
+/* GAME DATA */
+
+let board=
+document.getElementById("board");
+
+let firstCard=null;
+let secondCard=null;
+
+let lockBoard=false;
+
+let moves=0;
+let pairs=0;
+let timer=0;
+
+let gameStarted=false;
+let timerInterval;
+
+/* SHUFFLE */
+
+emojis.sort(()=>
+Math.random()-0.5
+);
+
+/* CREATE CARDS */
+
+function createBoard(){
+
+board.innerHTML="";
+
+emojis.forEach((emoji,index)=>{
+
+let card=
+document.createElement("div");
+
+card.className="card";
+
+card.dataset.emoji=emoji;
+
+card.innerHTML=`
+
+<div class="front">?</div>
+
+<div class="back">${emoji}</div>
+
+`;
+
+card.addEventListener(
+"click",
+flipCard
+);
+
+board.appendChild(card);
+
+});
+
+}
+
+/* FLIP */
+
+function flipCard(){
+
+if(lockBoard) return;
+
+if(this===firstCard) return;
+
+/* START TIMER */
+
+if(!gameStarted){
+
+gameStarted=true;
+
+timerInterval=
+setInterval(()=>{
+
+timer++;
+
+document
+.getElementById("timer")
+.innerText=timer;
+
+},1000);
+
+}
+
+/* SOUND */
+
+document
+.getElementById("flipSound")
+.currentTime=0;
+
+document
+.getElementById("flipSound")
+.play();
+
+this.classList.add("flip");
+
+/* FIRST */
+
+if(!firstCard){
+
+firstCard=this;
+return;
+
+}
+
+/* SECOND */
+
+secondCard=this;
+
+moves++;
+
+document
+.getElementById("moves")
+.innerText=moves;
+
+checkMatch();
+
+}
+
+/* MATCH */
+
+function checkMatch(){
+
+let matched=
+firstCard.dataset.emoji ===
+secondCard.dataset.emoji;
+
+matched
+?
+disableCards()
+:
+unflipCards();
+
+}
+
+/* DISABLE */
+
+function disableCards(){
+
+document
+.getElementById("matchSound")
+.play();
+
+pairs++;
+
+document
+.getElementById("pairs")
+.innerText=
+pairs;
+
+firstCard.removeEventListener(
+"click",
+flipCard
+);
+
+secondCard.removeEventListener(
+"click",
+flipCard
+);
+
+resetTurn();
+
+/* WIN */
+
+if(pairs===8){
+
+clearInterval(timerInterval);
+
+setTimeout(()=>{
+
+document
+.getElementById("winScreen")
+.style.display="flex";
+
+document
+.getElementById("finalStats")
+.innerHTML=`
+
+⏱ Time:
+${timer}s
+<br><br>
+🎯 Moves:
+${moves}
+
+`;
+
+},500);
+
+}
+
+}
+
+/* WRONG */
+
+function unflipCards(){
+
+lockBoard=true;
+
+document
+.getElementById("wrongSound")
+.play();
+
+setTimeout(()=>{
+
+firstCard.classList.remove(
+"flip"
+);
+
+secondCard.classList.remove(
+"flip"
+);
+
+resetTurn();
+
+},900);
+
+}
+
+/* RESET TURN */
+
+function resetTurn(){
+
+[firstCard,
+secondCard,
+lockBoard]=
+[null,null,false];
+
+}
+
+/* RESTART */
+
+function restartGame(){
+
+location.reload();
+
+}
+
+/* START */
+
+createBoard();
+
+</script>
+
+</body>
+</html>

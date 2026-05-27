@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>🧟 Zombie Shooter Survival</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+body{
+background:#050816;
+overflow:hidden;
+color:white;
+touch-action:none;
+}
+
+canvas{
+display:block;
+margin:auto;
+background:
+linear-gradient(#0b1020,#111827);
+border:4px solid #00e6ff;
+box-shadow:0 0 30px #00e6ff;
+width:100vw;
+height:100vh;
+}
+
+/* HUD */
+
+.hud{
+position:fixed;
+top:10px;
+left:50%;
+transform:translateX(-50%);
+display:flex;
+gap:20px;
+z-index:10;
+flex-wrap:wrap;
+justify-content:center;
+}
+
+.box{
+background:rgba(0,0,0,0.7);
+padding:10px 18px;
+border-radius:12px;
+border:2px solid #00e6ff;
+font-weight:bold;
+box-shadow:0 0 15px #00e6ff;
+}
+
+/* MOBILE CONTROLS */
+
+.controls{
+position:fixed;
+bottom:15px;
+width:100%;
+display:flex;
+justify-content:space-between;
+padding:0 20px;
+z-index:20;
+}
+
+.left-controls{
+display:flex;
+gap:10px;
+}
+
+.right-controls{
+display:flex;
+gap:10px;
+}
+
+.ctrl-btn{
+width:75px;
+height:75px;
+border-radius:50%;
+border:none;
+font-size:28px;
+background:#111827;
+color:white;
+border:3px solid #00e6ff;
+box-shadow:0 0 15px #00e6ff;
+}
+
+.ctrl-btn:active{
+transform:scale(0.9);
+}
+
+/* GAME OVER */
+
+#gameOver{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.9);
+display:none;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+z-index:100;
+}
+
+#gameOver h1{
+font-size:60px;
+color:red;
+text-shadow:0 0 25px red;
+margin-bottom:20px;
+}
+
+#gameOver button{
+padding:15px 30px;
+font-size:22px;
+border:none;
+border-radius:12px;
+background:#00e6ff;
+font-weight:bold;
+cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- HUD -->
+
+<div class="hud">
+
+<div class="box">
+❤️ Health:
+<span id="health">100</span>
+</div>
+
+<div class="box">
+🔫 Ammo:
+<span id="ammo">999</span>
+</div>
+
+<div class="box">
+🧟 Kills:
+<span id="kills">0</span>
+</div>
+
+<div class="box">
+⏱ Survival:
+<span id="timer">0</span>s
+</div>
+
+</div>
+
+<canvas id="game"></canvas>
+
+<!-- MOBILE CONTROLS -->
+
+<div class="controls">
+
+<div class="left-controls">
+
+<button class="ctrl-btn"
+ontouchstart="left=true"
+ontouchend="left=false">
+⬅️
+</button>
+
+<button class="ctrl-btn"
+ontouchstart="right=true"
+ontouchend="right=false">
+➡️
+</button>
+
+</div>
+
+<div class="right-controls">
+
+<button class="ctrl-btn"
+ontouchstart="up=true"
+ontouchend="up=false">
+⬆️
+</button>
+
+<button class="ctrl-btn"
+ontouchstart="down=true"
+ontouchend="down=false">
+⬇️
+</button>
+
+<button class="ctrl-btn"
+onclick="shoot()">
+🔫
+</button>
+
+</div>
+
+</div>
+
+<!-- GAME OVER -->
+
+<div id="gameOver">
+
+<h1>💀 GAME OVER</h1>
+
+<button onclick="restartGame()">
+🔄 Restart
+</button>
+
+</div>
+
+<!-- SOUND -->
+
+<audio id="shootSound">
+<source src="https://assets.mixkit.co/active_storage/sfx/212/212-preview.mp3">
+</audio>
+
+<audio id="hitSound">
+<source src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3">
+</audio>
+
+<script>
+
+const canvas =
+document.getElementById("game");
+
+const ctx =
+canvas.getContext("2d");
+
+canvas.width =
+window.innerWidth;
+
+canvas.height =
+window.innerHeight;
+
+/* PLAYER */
+
+let player = {
+
+x:200,
+y:300,
+
+w:50,
+h:50,
+
+speed:6,
+
+health:100,
+
+direction:"right"
+
+};
+
+/* KEYS */
+
+let keys={};
+
+let left=false;
+let right=false;
+let up=false;
+let down=false;
+
+/* GAME */
+
+let bullets=[];
+let zombies=[];
+
+let kills=0;
+let survival=0;
+
+let gameOver=false;
+
+/* KEYBOARD */
+
+document.addEventListener(
+"keydown",
+e=>{
+
+keys[e.key]=true;
+
+if(e.key===" ")
+shoot();
+
+});
+
+document.addEventListener(
+"keyup",
+e=>{
+keys[e.key]=false;
+});
+
+/* PLAYER MOVE */
+
+function movePlayer(){
+
+/* LEFT */
+
+if(
+keys["a"] ||
+keys["ArrowLeft"] ||
+left
+){
+
+player.x -= player.speed;
+
+player.direction="left";
+
+}
+
+/* RIGHT */
+
+if(
+keys["d"] ||
+keys["ArrowRight"] ||
+right
+){
+
+player.x += player.speed;
+
+player.direction="right";
+
+}
+
+/* UP */
+
+if(
+keys["w"] ||
+keys["ArrowUp"] ||
+up
+){
+
+player.y -= player.speed;
+
+}
+
+/* DOWN */
+
+if(
+keys["s"] ||
+keys["ArrowDown"] ||
+down
+){
+
+player.y += player.speed;
+
+}
+
+/* LIMIT */
+
+if(player.x<0)
+player.x=0;
+
+if(player.y<0)
+player.y=0;
+
+if(player.x>
+canvas.width-player.w)
+player.x=
+canvas.width-player.w;
+
+if(player.y>
+canvas.height-player.h)
+player.y=
+canvas.height-player.h;
+
+}
+
+/* DRAW PLAYER */
+
+function drawPlayer(){
+
+/* BODY */
+
+ctx.fillStyle="#00e6ff";
+
+ctx.fillRect(
+player.x,
+player.y,
+player.w,
+player.h
+);
+
+/* EYES */
+
+ctx.fillStyle="white";
+
+ctx.fillRect(
+player.x+10,
+player.y+10,
+8,
+8
+);
+
+ctx.fillRect(
+player.x+32,
+player.y+10,
+8,
+8
+);
+
+/* GUN */
+
+ctx.fillStyle="yellow";
+
+/* RIGHT GUN */
+
+if(player.direction==="right"){
+
+ctx.fillRect(
+player.x+45,
+player.y+18,
+30,
+10
+);
+
+}
+
+/* LEFT GUN */
+
+else{
+
+ctx.fillRect(
+player.x-25,
+player.y+18,
+30,
+10
+);
+
+}
+
+}
+
+/* SHOOT */
+
+function shoot(){
+
+if(gameOver) return;
+
+document
+.getElementById("shootSound")
+.currentTime=0;
+
+document
+.getElementById("shootSound")
+.play();
+
+/* BULLET */
+
+bullets.push({
+
+x:
+player.direction==="right"
+?
+player.x+60
+:
+player.x-10,
+
+y:
+player.y+25,
+
+speed:
+player.direction==="right"
+?
+10
+:
+-10
+
+});
+
+}
+
+/* DRAW BULLETS */
+
+function drawBullets(){
+
+ctx.fillStyle="orange";
+
+for(let i=0;i<bullets.length;i++){
+
+let b=bullets[i];
+
+b.x += b.speed;
+
+ctx.beginPath();
+
+ctx.arc(
+b.x,
+b.y,
+6,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+/* REMOVE */
+
+if(
+b.x<0 ||
+b.x>canvas.width
+){
+
+bullets.splice(i,1);
+
+}
+
+}
+
+}
+
+/* SPAWN ZOMBIES */
+
+function spawnZombie(){
+
+let side =
+Math.random()<0.5
+?
+"left"
+:
+"right";
+
+zombies.push({
+
+x:
+side==="left"
+?
+-60
+:
+canvas.width+60,
+
+y:
+Math.random()*
+(canvas.height-100),
+
+w:55,
+h:55,
+
+speed:
+2+Math.random()*2
+
+});
+
+}
+
+setInterval(spawnZombie,1200);
+
+/* DRAW ZOMBIES */
+
+function drawZombies(){
+
+for(let i=0;i<zombies.length;i++){
+
+let z=zombies[i];
+
+if(z.x<player.x)
+z.x += z.speed;
+
+else
+z.x -= z.speed;
+
+if(z.y<player.y)
+z.y += z.speed;
+
+else
+z.y -= z.speed;
+
+/* ZOMBIE */
+
+ctx.fillStyle="green";
+
+ctx.fillRect(
+z.x,
+z.y,
+z.w,
+z.h
+);
+
+/* EYES */
+
+ctx.fillStyle="red";
+
+ctx.fillRect(
+z.x+10,
+z.y+10,
+8,
+8
+);
+
+ctx.fillRect(
+z.x+32,
+z.y+10,
+8,
+8
+);
+
+/* COLLISION PLAYER */
+
+if(
+player.x < z.x+z.w &&
+player.x+player.w > z.x &&
+player.y < z.y+z.h &&
+player.y+player.h > z.y
+){
+
+player.health -= 0.2;
+
+}
+
+/* BULLET HIT */
+
+for(let j=0;j<bullets.length;j++){
+
+let b=bullets[j];
+
+if(
+
+b.x > z.x &&
+b.x < z.x+z.w &&
+b.y > z.y &&
+b.y < z.y+z.h
+
+){
+
+document
+.getElementById("hitSound")
+.currentTime=0;
+
+document
+.getElementById("hitSound")
+.play();
+
+zombies.splice(i,1);
+
+bullets.splice(j,1);
+
+kills++;
+
+break;
+
+}
+
+}
+
+}
+
+}
+
+/* UPDATE HUD */
+
+function updateHUD(){
+
+document
+.getElementById("health")
+.innerText=
+Math.floor(player.health);
+
+document
+.getElementById("kills")
+.innerText=
+kills;
+
+document
+.getElementById("timer")
+.innerText=
+survival;
+
+}
+
+/* TIMER */
+
+setInterval(()=>{
+
+if(!gameOver)
+survival++;
+
+},1000);
+
+/* GAME LOOP */
+
+function gameLoop(){
+
+if(gameOver) return;
+
+ctx.clearRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+movePlayer();
+
+drawPlayer();
+
+drawBullets();
+
+drawZombies();
+
+updateHUD();
+
+/* GAME OVER */
+
+if(player.health<=0){
+
+gameOver=true;
+
+document
+.getElementById("gameOver")
+.style.display="flex";
+
+return;
+
+}
+
+requestAnimationFrame(gameLoop);
+
+}
+
+gameLoop();
+
+/* RESTART */
+
+function restartGame(){
+
+location.reload();
+
+}
+
+</script>
+
+</body>
+</html>

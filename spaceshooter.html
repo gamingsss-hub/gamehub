@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>🚀 Space Shooter Boss Fight</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+body{
+overflow:hidden;
+background:black;
+touch-action:none;
+}
+
+/* CANVAS */
+
+canvas{
+display:block;
+background:
+radial-gradient(circle at top,
+#111827,
+#020617);
+width:100vw;
+height:100vh;
+}
+
+/* HUD */
+
+.hud{
+position:fixed;
+top:10px;
+left:50%;
+transform:translateX(-50%);
+display:flex;
+gap:15px;
+z-index:10;
+flex-wrap:wrap;
+justify-content:center;
+}
+
+.box{
+background:rgba(0,0,0,0.7);
+padding:10px 18px;
+border-radius:12px;
+border:2px solid #00e6ff;
+color:white;
+font-weight:bold;
+box-shadow:0 0 15px #00e6ff;
+}
+
+/* MOBILE CONTROLS */
+
+.controls{
+position:fixed;
+bottom:15px;
+width:100%;
+display:flex;
+justify-content:space-between;
+padding:0 20px;
+z-index:20;
+}
+
+.left-controls,
+.right-controls{
+display:flex;
+gap:10px;
+}
+
+.ctrl-btn{
+width:75px;
+height:75px;
+border-radius:50%;
+border:none;
+font-size:28px;
+background:#111827;
+color:white;
+border:3px solid #00e6ff;
+box-shadow:0 0 15px #00e6ff;
+}
+
+.ctrl-btn:active{
+transform:scale(0.9);
+}
+
+/* GAME OVER */
+
+#gameOver{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+display:none;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+background:rgba(0,0,0,0.92);
+z-index:100;
+color:white;
+}
+
+#gameOver h1{
+font-size:60px;
+color:red;
+margin-bottom:20px;
+text-shadow:0 0 25px red;
+}
+
+#gameOver button{
+padding:15px 30px;
+font-size:22px;
+border:none;
+border-radius:12px;
+background:#00e6ff;
+font-weight:bold;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- HUD -->
+
+<div class="hud">
+
+<div class="box">
+❤️ Health:
+<span id="health">100</span>
+</div>
+
+<div class="box">
+👾 Kills:
+<span id="kills">0</span>
+</div>
+
+<div class="box">
+🏆 Score:
+<span id="score">0</span>
+</div>
+
+<div class="box">
+👑 Boss HP:
+<span id="bossHP">300</span>
+</div>
+
+</div>
+
+<canvas id="game"></canvas>
+
+<!-- MOBILE CONTROLS -->
+
+<div class="controls">
+
+<div class="left-controls">
+
+<button class="ctrl-btn"
+ontouchstart="left=true"
+ontouchend="left=false">
+⬅️
+</button>
+
+<button class="ctrl-btn"
+ontouchstart="right=true"
+ontouchend="right=false">
+➡️
+</button>
+
+</div>
+
+<div class="right-controls">
+
+<button class="ctrl-btn"
+ontouchstart="up=true"
+ontouchend="up=false">
+⬆️
+</button>
+
+<button class="ctrl-btn"
+ontouchstart="down=true"
+ontouchend="down=false">
+⬇️
+</button>
+
+<button class="ctrl-btn"
+onclick="shoot()">
+🚀
+</button>
+
+</div>
+
+</div>
+
+<!-- GAME OVER -->
+
+<div id="gameOver">
+
+<h1>💀 GAME OVER</h1>
+
+<button onclick="restartGame()">
+🔄 Restart
+</button>
+
+</div>
+
+<!-- SOUNDS -->
+
+<audio id="shootSound">
+<source src="https://assets.mixkit.co/active_storage/sfx/212/212-preview.mp3">
+</audio>
+
+<audio id="boomSound">
+<source src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3">
+</audio>
+
+<script>
+
+const canvas=
+document.getElementById("game");
+
+const ctx=
+canvas.getContext("2d");
+
+canvas.width=
+window.innerWidth;
+
+canvas.height=
+window.innerHeight;
+
+/* PLAYER */
+
+let ship={
+
+x:200,
+y:500,
+
+w:70,
+h:70,
+
+speed:7,
+
+health:100
+
+};
+
+/* GAME */
+
+let bullets=[];
+let enemies=[];
+let enemyBullets=[];
+
+let kills=0;
+let score=0;
+
+let gameOver=false;
+
+/* BOSS */
+
+let boss={
+
+x:canvas.width/2-120,
+y:50,
+
+w:240,
+h:120,
+
+hp:300,
+
+active:false,
+
+dir:4
+
+};
+
+/* CONTROLS */
+
+let keys={};
+
+let left=false;
+let right=false;
+let up=false;
+let down=false;
+
+/* KEYBOARD */
+
+document.addEventListener(
+"keydown",
+e=>{
+
+keys[e.key]=true;
+
+if(e.key===" ")
+shoot();
+
+});
+
+document.addEventListener(
+"keyup",
+e=>{
+
+keys[e.key]=false;
+
+});
+
+/* STARS */
+
+let stars=[];
+
+for(let i=0;i<120;i++){
+
+stars.push({
+
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+size:Math.random()*3
+
+});
+
+}
+
+/* DRAW STARS */
+
+function drawStars(){
+
+ctx.fillStyle="white";
+
+stars.forEach(s=>{
+
+s.y += 2;
+
+if(s.y>canvas.height)
+s.y=0;
+
+ctx.fillRect(
+s.x,
+s.y,
+s.size,
+s.size
+);
+
+});
+
+}
+
+/* PLAYER MOVE */
+
+function moveShip(){
+
+if(keys["a"]||
+keys["ArrowLeft"]||
+left)
+ship.x-=ship.speed;
+
+if(keys["d"]||
+keys["ArrowRight"]||
+right)
+ship.x+=ship.speed;
+
+if(keys["w"]||
+keys["ArrowUp"]||
+up)
+ship.y-=ship.speed;
+
+if(keys["s"]||
+keys["ArrowDown"]||
+down)
+ship.y+=ship.speed;
+
+/* LIMIT */
+
+if(ship.x<0)
+ship.x=0;
+
+if(ship.y<0)
+ship.y=0;
+
+if(ship.x>
+canvas.width-ship.w)
+ship.x=
+canvas.width-ship.w;
+
+if(ship.y>
+canvas.height-ship.h)
+ship.y=
+canvas.height-ship.h;
+
+}
+
+/* DRAW SHIP */
+
+function drawShip(){
+
+ctx.fillStyle="#00e6ff";
+
+/* BODY */
+
+ctx.beginPath();
+
+ctx.moveTo(ship.x+35,ship.y);
+
+ctx.lineTo(ship.x,ship.y+70);
+
+ctx.lineTo(ship.x+70,ship.y+70);
+
+ctx.fill();
+
+/* ENGINE */
+
+ctx.fillStyle="orange";
+
+ctx.fillRect(
+ship.x+25,
+ship.y+60,
+20,
+15
+);
+
+}
+
+/* SHOOT */
+
+function shoot(){
+
+if(gameOver) return;
+
+document
+.getElementById("shootSound")
+.currentTime=0;
+
+document
+.getElementById("shootSound")
+.play();
+
+bullets.push({
+
+x:ship.x+33,
+y:ship.y,
+
+w:6,
+h:20,
+
+speed:12
+
+});
+
+}
+
+/* DRAW BULLETS */
+
+function drawBullets(){
+
+ctx.fillStyle="lime";
+
+for(let i=0;i<bullets.length;i++){
+
+let b=bullets[i];
+
+b.y -= b.speed;
+
+ctx.fillRect(
+b.x,
+b.y,
+b.w,
+b.h
+);
+
+if(b.y<0)
+bullets.splice(i,1);
+
+}
+
+}
+
+/* ENEMY SPAWN */
+
+function spawnEnemy(){
+
+if(boss.active) return;
+
+enemies.push({
+
+x:Math.random()*
+(canvas.width-60),
+
+y:-80,
+
+w:60,
+h:60,
+
+speed:
+3+Math.random()*3
+
+});
+
+}
+
+setInterval(spawnEnemy,900);
+
+/* DRAW ENEMIES */
+
+function drawEnemies(){
+
+for(let i=0;i<enemies.length;i++){
+
+let e=enemies[i];
+
+e.y += e.speed;
+
+ctx.fillStyle="red";
+
+ctx.fillRect(
+e.x,
+e.y,
+e.w,
+e.h
+);
+
+/* ENEMY EYES */
+
+ctx.fillStyle="white";
+
+ctx.fillRect(e.x+10,e.y+15,8,8);
+ctx.fillRect(e.x+40,e.y+15,8,8);
+
+/* COLLISION */
+
+if(
+
+ship.x < e.x+e.w &&
+ship.x+ship.w > e.x &&
+ship.y < e.y+e.h &&
+ship.y+ship.h > e.y
+
+){
+
+ship.health -= 20;
+
+enemies.splice(i,1);
+
+}
+
+/* BULLET HIT */
+
+for(let j=0;j<bullets.length;j++){
+
+let b=bullets[j];
+
+if(
+
+b.x < e.x+e.w &&
+b.x+b.w > e.x &&
+b.y < e.y+e.h &&
+b.y+b.h > e.y
+
+){
+
+document
+.getElementById("boomSound")
+.currentTime=0;
+
+document
+.getElementById("boomSound")
+.play();
+
+enemies.splice(i,1);
+
+bullets.splice(j,1);
+
+kills++;
+score+=10;
+
+break;
+
+}
+
+}
+
+/* REMOVE */
+
+if(e.y>canvas.height)
+enemies.splice(i,1);
+
+}
+
+/* BOSS SPAWN */
+
+if(kills>=15){
+
+boss.active=true;
+
+}
+
+}
+
+/* DRAW BOSS */
+
+function drawBoss(){
+
+if(!boss.active) return;
+
+/* MOVE */
+
+boss.x += boss.dir;
+
+if(
+boss.x<0 ||
+boss.x>
+canvas.width-boss.w
+){
+
+boss.dir *= -1;
+
+}
+
+/* BODY */
+
+ctx.fillStyle="purple";
+
+ctx.fillRect(
+boss.x,
+boss.y,
+boss.w,
+boss.h
+);
+
+/* EYES */
+
+ctx.fillStyle="red";
+
+ctx.fillRect(
+boss.x+50,
+boss.y+30,
+25,
+25
+);
+
+ctx.fillRect(
+boss.x+160,
+boss.y+30,
+25,
+25
+);
+
+/* SHOOT */
+
+if(Math.random()<0.03){
+
+enemyBullets.push({
+
+x:boss.x+120,
+y:boss.y+100,
+
+w:10,
+h:25,
+
+speed:7
+
+});
+
+}
+
+/* HIT */
+
+for(let i=0;i<bullets.length;i++){
+
+let b=bullets[i];
+
+if(
+
+b.x<boss.x+boss.w &&
+b.x+b.w>boss.x &&
+b.y<boss.y+boss.h &&
+b.y+b.h>boss.y
+
+){
+
+boss.hp -= 10;
+
+bullets.splice(i,1);
+
+score+=20;
+
+}
+
+}
+
+/* WIN */
+
+if(boss.hp<=0){
+
+alert("🏆 YOU DEFEATED THE BOSS!");
+
+location.reload();
+
+}
+
+}
+
+/* DRAW ENEMY BULLETS */
+
+function drawEnemyBullets(){
+
+ctx.fillStyle="orange";
+
+for(let i=0;i<enemyBullets.length;i++){
+
+let b=enemyBullets[i];
+
+b.y += b.speed;
+
+ctx.fillRect(
+b.x,
+b.y,
+b.w,
+b.h
+);
+
+/* HIT PLAYER */
+
+if(
+
+b.x<ship.x+ship.w &&
+b.x+b.w>ship.x &&
+b.y<ship.y+ship.h &&
+b.y+b.h>ship.y
+
+){
+
+ship.health -= 10;
+
+enemyBullets.splice(i,1);
+
+}
+
+/* REMOVE */
+
+if(b.y>canvas.height)
+enemyBullets.splice(i,1);
+
+}
+
+}
+
+/* HUD */
+
+function updateHUD(){
+
+document
+.getElementById("health")
+.innerText=
+ship.health;
+
+document
+.getElementById("kills")
+.innerText=
+kills;
+
+document
+.getElementById("score")
+.innerText=
+score;
+
+document
+.getElementById("bossHP")
+.innerText=
+boss.hp;
+
+}
+
+/* GAME OVER */
+
+function endGame(){
+
+gameOver=true;
+
+document
+.getElementById("gameOver")
+.style.display="flex";
+
+}
+
+/* LOOP */
+
+function gameLoop(){
+
+if(gameOver) return;
+
+ctx.clearRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+drawStars();
+
+moveShip();
+
+drawShip();
+
+drawBullets();
+
+drawEnemies();
+
+drawBoss();
+
+drawEnemyBullets();
+
+updateHUD();
+
+/* GAME OVER */
+
+if(ship.health<=0){
+
+endGame();
+
+return;
+
+}
+
+requestAnimationFrame(gameLoop);
+
+}
+
+gameLoop();
+
+/* RESTART */
+
+function restartGame(){
+
+location.reload();
+
+}
+
+</script>
+
+</body>
+</html>
