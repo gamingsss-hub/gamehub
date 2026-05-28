@@ -3,652 +3,294 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Game Hub Ultra</title>
+<title>ULTIMATE PRO MAX GAME HUB</title>
 
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
 
 body{
-background:#0b1020;
+background:#05070f;
 color:white;
 overflow-x:hidden;
-scroll-behavior:smooth;
 }
 
-/* ANIMATED BACKGROUND */
-
-body::before{
-content:"";
+/* LOADER */
+#loader{
 position:fixed;
-width:200%;
-height:200%;
-background:
-radial-gradient(circle,#00e6ff22 1px,transparent 1px);
-background-size:40px 40px;
-animation:bgMove 20s linear infinite;
-z-index:-1;
+width:100%;
+height:100%;
+background:#000;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+z-index:9999;
 }
 
-@keyframes bgMove{
-0%{transform:translate(0,0);}
-100%{transform:translate(-200px,-200px);}
+.spinner{
+width:60px;height:60px;
+border:5px solid #222;
+border-top:5px solid #00e6ff;
+border-radius:50%;
+animation:spin 1s linear infinite;
 }
+
+@keyframes spin{to{transform:rotate(360deg);}}
 
 /* TOPBAR */
-
 .topbar{
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:15px 20px;
-background:rgba(17,24,39,0.9);
-backdrop-filter:blur(10px);
-box-shadow:0 0 20px rgba(0,230,255,0.3);
+padding:12px 15px;
+background:#000;
 position:sticky;
 top:0;
-z-index:100;
+z-index:1000;
+border-bottom:1px solid #1f2937;
 }
 
-.logo{
-font-size:30px;
+.logo{color:#00e6ff;font-weight:bold;}
+
+.profile{display:flex;align-items:center;gap:10px;}
+
+.avatar{
+width:35px;height:35px;border-radius:50%;
+background:linear-gradient(45deg,#00e6ff,#6d28d9);
+display:flex;justify-content:center;align-items:center;
 font-weight:bold;
-color:#00e6ff;
-text-shadow:0 0 15px #00e6ff;
-animation:glow 2s infinite alternate;
 }
 
-@keyframes glow{
-from{
-text-shadow:0 0 10px #00e6ff;
-}
-to{
-text-shadow:0 0 25px #00e6ff;
-}
-}
-
-/* HERO */
-
-.hero{
-padding:70px 20px;
-text-align:center;
-background:linear-gradient(135deg,#00e6ff,#6d28d9);
-animation:fadeIn 1s ease;
-}
-
-.hero h1{
-font-size:45px;
-margin-bottom:15px;
-animation:slideDown 1s ease;
-}
-
-.hero p{
-font-size:20px;
-margin-bottom:25px;
-}
-
-@keyframes slideDown{
-from{
-opacity:0;
-transform:translateY(-50px);
-}
-to{
-opacity:1;
-transform:translateY(0);
-}
-}
-
-@keyframes fadeIn{
-from{
-opacity:0;
-}
-to{
-opacity:1;
-}
-}
-
-/* SEARCH */
-
-.search-box{
-padding:14px;
-width:300px;
-border:none;
-border-radius:30px;
-font-size:16px;
-outline:none;
-box-shadow:0 0 15px rgba(0,0,0,0.3);
-transition:0.3s;
-}
-
-.search-box:focus{
-transform:scale(1.05);
-box-shadow:0 0 20px #00e6ff;
-}
-
-/* BUTTON */
-
-.reward-btn{
-margin-top:20px;
-padding:14px 25px;
-border:none;
-border-radius:30px;
-background:#111827;
+.btn{
+padding:6px 10px;
+background:#0b1220;
+border:1px solid #00e6ff;
 color:white;
-font-weight:bold;
+border-radius:8px;
 cursor:pointer;
-transition:0.3s;
-font-size:16px;
+font-size:12px;
 }
 
-.reward-btn:hover{
-background:black;
-transform:scale(1.08);
-box-shadow:0 0 20px #00e6ff;
-}
-
-.coin-box{
-margin-top:20px;
-font-size:24px;
-font-weight:bold;
-}
-
-/* GAMES */
-
+/* SECTION */
 .section-title{
-padding:30px 20px 10px;
-font-size:32px;
+padding:10px 15px;
 color:#00e6ff;
-text-shadow:0 0 10px #00e6ff;
+font-weight:bold;
+font-size:18px;
 }
 
-.games{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-gap:25px;
-padding:25px;
+/* CAROUSEL */
+.carousel{
+display:flex;
+gap:15px;
+overflow-x:auto;
+padding:10px 15px;
+scroll-behavior:smooth;
 }
 
+.carousel::-webkit-scrollbar{display:none;}
+
+/* CARD */
 .card{
-background:#1f2937;
-border-radius:20px;
+min-width:180px;
+height:220px;
+border-radius:16px;
 overflow:hidden;
-cursor:pointer;
-transition:0.4s;
-border:1px solid rgba(255,255,255,0.1);
 position:relative;
-animation:cardFade 1s ease;
-}
-
-@keyframes cardFade{
-from{
-opacity:0;
-transform:translateY(40px);
-}
-to{
-opacity:1;
-transform:translateY(0);
-}
+cursor:pointer;
+border:1px solid #1f2937;
+transition:0.3s;
+flex:0 0 auto;
 }
 
 .card:hover{
-transform:translateY(-12px) scale(1.04);
-box-shadow:0 0 30px #00e6ff;
+transform:scale(1.08);
 border-color:#00e6ff;
+box-shadow:0 0 25px #00e6ff;
+}
+
+.card img{
+width:100%;
+height:100%;
+object-fit:cover;
+position:absolute;
+}
+
+.card video{
+width:100%;
+height:100%;
+object-fit:cover;
+position:absolute;
+display:none;
+}
+
+.card h3{
+position:absolute;
+bottom:10px;
+left:10px;
+z-index:2;
+font-size:13px;
 }
 
 .card::before{
 content:"";
 position:absolute;
-top:0;
-left:-100%;
 width:100%;
 height:100%;
-background:linear-gradient(
-90deg,
-transparent,
-rgba(255,255,255,0.2),
-transparent
-);
-transition:0.5s;
-}
-
-.card:hover::before{
-left:100%;
-}
-
-.game-img{
-width:100%;
-height:180px;
-object-fit:cover;
-display:block;
-}
-
-.card-content{
-padding:18px;
-text-align:center;
-}
-
-.card-content h3{
-margin-bottom:12px;
-font-size:24px;
-}
-
-.tag{
-display:inline-block;
-padding:7px 14px;
-background:#00e6ff;
-color:black;
-border-radius:25px;
-font-size:14px;
-font-weight:bold;
+background:linear-gradient(to top,rgba(0,0,0,0.85),transparent);
+z-index:1;
 }
 
 /* FOOTER */
-
 .footer{
-text-align:center;
-padding:25px;
+padding:15px;
+font-size:11px;
 color:#aaa;
-font-size:16px;
+text-align:center;
+border-top:1px solid #1f2937;
+margin-top:20px;
 }
-
-/* FLOATING ICON */
-
-.float-icon{
-position:fixed;
-bottom:20px;
-right:20px;
-background:#00e6ff;
-width:60px;
-height:60px;
-border-radius:50%;
-display:flex;
-justify-content:center;
-align-items:center;
-font-size:28px;
-box-shadow:0 0 20px #00e6ff;
-animation:bounce 2s infinite;
-cursor:pointer;
-}
-
-@keyframes bounce{
-0%,100%{
-transform:translateY(0);
-}
-50%{
-transform:translateY(-10px);
-}
-}
-
 </style>
 </head>
 
 <body>
 
-<!-- AUDIO -->
-
-<audio id="clickSound">
-<source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
-</audio>
+<!-- LOADER -->
+<div id="loader">
+<div class="spinner"></div>
+<p style="color:#00e6ff;margin-top:10px;">Loading ULTIMATE PRO MAX...</p>
+</div>
 
 <!-- TOPBAR -->
-
 <div class="topbar">
+<div class="logo">🎮 ULTIMATE PRO MAX</div>
 
-<div class="logo">
-🎮 Game Hub Ultra
+<div class="profile">
+<div class="avatar" id="avatar">U</div>
+<span id="username">Guest</span>
+💰 <span id="coins">0</span>
+</div>
 </div>
 
-<div>
-🔥 Trending Games
-</div>
-
-</div>
-
-<!-- HERO -->
-
-<div class="hero">
-
-<h1>🔥 Welcome To Game Hub Ultra</h1>
-
-<p>
-Play Racing, Survival, Quiz, Snake & More Games
-</p>
-
-<input
-type="text"
-id="search"
-class="search-box"
-placeholder="🔍 Search Games..."
-onkeyup="searchGames()"
->
-
-<br>
-
-<button class="reward-btn" onclick="dailyReward()">
-🎁 Daily Reward (+50 Coins)
-</button>
-
-<div class="coin-box">
-💰 Coins:
-<span id="coins">0</span>
-</div>
-
-</div>
-
-<!-- GAMES -->
-
-<h2 class="section-title">🏆 Featured Games</h2>
-
-<div class="games">
-
-<!-- RACING -->
-
-<div class="card" onclick="openGame('racing.html')">
-
-<img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1200&auto=format&fit=crop" class="game-img">
-
-<div class="card-content">
-
-<h3>🏎 Racing Game</h3>
-
-<div class="tag">
-⭐ Trending #1
-</div>
-
-</div>
-
-</div>
-
-<!-- SURVIVAL -->
-
-<div class="card" onclick="openGame('survival.html')">
-
-<img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop" class="game-img">
-
-<div class="card-content">
-
-<h3>🧍 Survival Game</h3>
-
-<div class="tag">
-🔥 HOT
-</div>
-
-</div>
-
-</div>
-
-<!-- QUIZ -->
-
-<div class="card" onclick="openGame('quiz.html')">
-
-<img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop" class="game-img">
-
-<div class="card-content">
-
-<h3>🧠 Quiz Game</h3>
-
-<div class="tag">
-🆕 NEW
-</div>
-
-</div>
-
-</div>
-
-<!-- SNAKE -->
-
-<div class="card" onclick="openGame('snakegame.html')">
-
-<img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop" class="game-img">
-
-<div class="card-content">
-
-<h3>🐍 Snake Game</h3>
-
-<div class="tag">
-🎮 Classic
-</div>
-
-</div>
-
-</div>
-
-<!-- TIC TAC TOE -->
-
-<div class="card" onclick="openGame('tictactoe.html')">
-
-<img src="https://images.unsplash.com/photo-1523875194681-bedd468c58bf?q=80&w=1200&auto=format&fit=crop" class="game-img">
-
-<div class="card-content">
-
-<h3>❌⭕ Tic Tac Toe</h3>
-
-<div class="tag">
-🔥 Multiplayer
-</div>
-
-</div>
-
-</div>
-
-<!-- BOXING -->
-
-<div class="card" onclick="openGame('boxing.html')">
-
-<img src="https://images.unsplash.com/photo-1517438476312-10d79c077509?q=80&w=1200&auto=format&fit=crop" class="game-img">
-
-<div class="card-content">
-
-<h3>🥊 Shadow Fighter</h3>
-
-<div class="tag">
-💀 HARD MODE
-</div>
-
-</div>
-
-</div>
-
-<!-- FLAPPY BIRD -->
-
-<div class="card" onclick="openGame('flappybird.html')">
-
-<img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1200&auto=format&fit=crop" class="game-img">
-
-<div class="card-content">
-
-<h3>🐤 Flappy Bird</h3>
-
-<div class="tag">
-🚀 Addictive
-</div>
-
-</div>
-
-</div>
-
-<!-- ZOMBIE -->
-
-<div class="card" onclick="openGame('zombie.html')">
-
-<img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200&auto=format&fit=crop" class="game-img">
-
-<div class="card-content">
-
-<h3>🧟 Zombie Shooter</h3>
-
-<div class="tag">
-🔫 Survival
-</div>
-
-</div>
-
-</div>
-
-<!-- DRIFT -->
+<!-- PC GAMES -->
+<div class="section-title">💻 PC GAMES</div>
+<div class="carousel">
 
 <div class="card" onclick="openGame('cardrift.html')">
-
-<img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=1200&auto=format&fit=crop" class="game-img">
-
-<div class="card-content">
-
+<img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70">
+<video muted loop src="https://cdn.coverr.co/videos/coverr-driving-through-a-neon-city-3130/1080p.mp4"></video>
 <h3>🚗 Car Drift</h3>
-
-<div class="tag">
-⚡ Nitro Boost
 </div>
 
+<div class="card" onclick="openGame('zombie.html')">
+<img src="https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf">
+<video muted loop src="https://cdn.coverr.co/videos/coverr-zombie-walk-4556/1080p.mp4"></video>
+<h3>🧟 Zombie Shooter</h3>
 </div>
-
-</div>
-
-<!-- MEMORY -->
-
-<div class="card" onclick="openGame('memorycard.html')">
-
-<img src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1200&auto=format&fit=crop" class="game-img">
-
-<div class="card-content">
-
-<h3>🧠 Memory Card</h3>
-
-<div class="tag">
-⏱ Brain Challenge
-</div>
-
-</div>
-
-</div>
-
-<!-- SPACE SHOOTER -->
 
 <div class="card" onclick="openGame('spaceshooter.html')">
-
-<img src="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=1200&auto=format&fit=crop" class="game-img">
-
-<div class="card-content">
-
+<img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa">
+<video muted loop src="https://cdn.coverr.co/videos/coverr-space-stars-960/1080p.mp4"></video>
 <h3>🚀 Space Shooter</h3>
+</div>
 
-<div class="tag">
-👾 Boss Fight
+<div class="card" onclick="openGame('boxing.html')">
+<img src="https://images.unsplash.com/photo-1599058917212-d750089bc07e">
+<h3>🥊 Boxing Game</h3>
 </div>
 
 </div>
 
+<!-- MOBILE GAMES -->
+<div class="section-title">📱 MOBILE GAMES</div>
+<div class="carousel">
+
+<div class="card" onclick="openGame('snakegame.html')">
+<img src="https://images.unsplash.com/photo-1551103782-8ab07afd45c1">
+<h3>🐍 Snake Game</h3>
+</div>
+
+<div class="card" onclick="openGame('quiz.html')">
+<img src="https://images.unsplash.com/photo-1587560699334-cc4ff634909a">
+<h3>🧠 Quiz Game</h3>
+</div>
+
+<div class="card" onclick="openGame('tictactoe.html')">
+<img src="https://images.unsplash.com/photo-1611996575749-79a3a250f948">
+<h3>❌⭕ Tic Tac Toe</h3>
+</div>
+
+<div class="card" onclick="openGame('flappybird.html')">
+<img src="https://images.unsplash.com/photo-1614294148960-9aa740632a87">
+<h3>🐦 Flappy Bird</h3>
+</div>
+
+<div class="card" onclick="openGame('memorycard.html')">
+<img src="https://images.unsplash.com/photo-1523875194681-bedd468c58bf">
+<h3>🃏 Memory Card</h3>
+</div>
+
+<div class="card" onclick="openGame('tapgame.html')">
+<img src="https://images.unsplash.com/photo-1526498460520-4c246339dccb">
+<h3>👆 Tap Game</h3>
 </div>
 
 </div>
 
-<!-- FOOTER -->
-
+<!-- PRIVACY POLICY -->
 <div class="footer">
-Made With ❤️ By Yash
-</div>
-
-<!-- FLOATING BUTTON -->
-
-<div class="float-icon" onclick="scrollToTop()">
-🚀
+📜 Privacy Policy: We store only username, coins and settings in browser local storage. No data is shared or sent outside your device.
 </div>
 
 <script>
 
-/* OPEN GAME */
-
-function openGame(file){
-
-document.getElementById("clickSound").play();
-
+/* LOADER */
+window.onload=()=>{
 setTimeout(()=>{
+document.getElementById("loader").style.display="none";
+},1200);
+
+/* LOGIN REQUIRED */
+let user=localStorage.getItem("user");
+if(!user){
+user=prompt("Enter your name to continue:");
+while(!user){
+user=prompt("Name is required!");
+}
+localStorage.setItem("user",user);
+}
+
+document.getElementById("username").innerText=user;
+document.getElementById("avatar").innerText=user[0].toUpperCase();
+};
+
+/* OPEN GAME */
+function openGame(file){
 window.location.href=file;
-},200);
-
 }
 
-/* COINS */
-
-let coins =
-parseInt(localStorage.getItem("coins")) || 0;
-
-document.getElementById("coins").innerText =
-coins;
-
-/* DAILY REWARD */
-
-function dailyReward(){
-
-let lastReward =
-localStorage.getItem("lastReward");
-
-let now = Date.now();
-
-if(lastReward && now - lastReward < 86400000){
-
-alert("⏰ Reward already claimed today!");
-return;
-
+/* HOVER VIDEO */
+document.querySelectorAll(".card").forEach(card=>{
+card.addEventListener("mouseenter",()=>{
+let v=card.querySelector("video");
+let i=card.querySelector("img");
+if(v){
+i.style.display="none";
+v.style.display="block";
+v.play();
 }
-
-coins += 50;
-
-localStorage.setItem("coins", coins);
-
-localStorage.setItem("lastReward", now);
-
-document.getElementById("coins").innerText =
-coins;
-
-alert("🎉 +50 Coins Added!");
-
-}
-
-/* SEARCH */
-
-function searchGames(){
-
-let input =
-document.getElementById("search")
-.value
-.toLowerCase();
-
-let cards =
-document.querySelectorAll(".card");
-
-cards.forEach(card=>{
-
-let text =
-card.innerText.toLowerCase();
-
-if(text.includes(input)){
-
-card.style.display="block";
-
-}else{
-
-card.style.display="none";
-
-}
-
 });
-
+card.addEventListener("mouseleave",()=>{
+let v=card.querySelector("video");
+let i=card.querySelector("img");
+if(v){
+v.pause();
+v.currentTime=0;
+v.style.display="none";
+i.style.display="block";
 }
-
-/* SCROLL TOP */
-
-function scrollToTop(){
-window.scrollTo({
-top:0,
-behavior:"smooth"
 });
-}
+});
 
 </script>
 
